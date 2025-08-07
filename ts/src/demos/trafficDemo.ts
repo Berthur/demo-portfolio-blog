@@ -4,8 +4,8 @@ import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { Demo } from "./demo";
-import { BooleanSetting, ButtonSetting, NumberSetting } from "./setting";
-import { glsl, getMaxTextureSize, PseudoPointsGeometry } from "./utils";
+import { BooleanSetting, ButtonSetting, NumberSetting } from "../setting";
+import { glsl, getMaxTextureSize, PseudoPointsGeometry } from "../utils";
 
 const MAX_TEXTURE_DIM = Math.min(getMaxTextureSize(), 4096);
 const BACKGROUND_RESOLUTION = 1024;

@@ -1,6 +1,6 @@
-import { FractalDemo } from "./fractalDemo";
-import { ParticlesDemo } from "./particlesDemo";
-import { TrafficDemo } from "./trafficDemo";
+import { FractalDemo } from "./demos/fractalDemo";
+import { ParticlesDemo } from "./demos/particlesDemo";
+import { TrafficDemo } from "./demos/trafficDemo";
 
 export class App {
     demos = Object.seal({

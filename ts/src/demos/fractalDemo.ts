@@ -1,10 +1,10 @@
 import { Uniform, Vector2, WebGLRenderer } from "three";
 import { Demo } from "./demo";
-import { glsl } from "./utils";
+import { glsl } from "../utils";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass";
-import { ButtonSetting, NumberSetting } from "./setting";
+import { ButtonSetting, NumberSetting } from "../setting";
 
 export class FractalDemo extends Demo {
     private readonly dimensions = new Vector2();

@@ -3,8 +3,8 @@ import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { Demo } from "./demo";
-import { BooleanSetting, ButtonSetting, ColorSchemeSetting, NumberSetting } from "./setting";
-import { glsl, getMaxTextureSize, PseudoPointsGeometry } from "./utils";
+import { BooleanSetting, ButtonSetting, ColorSchemeSetting, NumberSetting } from "../setting";
+import { glsl, getMaxTextureSize, PseudoPointsGeometry } from "../utils";
 
 const MAX_TEXTURE_DIM = getMaxTextureSize();
 
