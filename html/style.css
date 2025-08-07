@@ -1,0 +1,218 @@
+
+:root {
+    --background-color: #151515;
+    --background-color-darker: #050505;
+    --demo-theme-color: #50cdb1;
+    --demo-theme-secondary-color: rgba(58, 107, 82, 0.25);
+}
+
+body {
+    margin: 0;
+    background: var(--background-color);
+    color: white;
+    font-family: Consolas, monospace;
+}
+
+a {
+    color: var(--demo-theme-color);
+}
+a:hover {
+    filter: brightness(0.7);
+}
+
+#banner {
+    height: calc(80px - 2*20px);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    background-color: var(--background-color-darker);
+    font-size: 1.2rem;
+    user-select: none;
+}
+#banner > * {
+    width: calc(100% / 3);
+}
+#banner > *:nth-child(2) {
+    text-align: center;
+    font-size: 1.7rem;
+}
+#banner > *:nth-child(3) {
+    text-align: right;
+}
+#banner * {
+    vertical-align: middle;
+}
+#banner a {
+    color: inherit;
+    text-decoration: inherit;
+}
+
+.textbox {
+    max-width: 1000px;
+    margin: auto;
+    font-size: 1.1rem;
+    padding: 20px;
+}
+.textbox.center {
+    text-align: center;
+}
+
+.demosGrid {
+    padding: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+.demosGridCell {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    border: 1px solid black;
+    user-select: none;
+    cursor: pointer;
+}
+.demosGridCell img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+@keyframes gridCellHover {
+    from { filter: none; }
+    to { filter: blur(3px) brightness(0.5); }
+}
+.demosGridCell img:hover {
+    filter: blur(3px) brightness(0.5);
+    animation: gridCellHover 0.15s ease-out;
+}
+.demosGridCell .overlay {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: calc(100% - 2*20px);
+    height: calc(100% - 2*20px);
+    padding: 20px;
+    text-align: center;
+    font-size: 1.5rem;
+    pointer-events: none;
+}
+.demosGridCell:hover .overlay {
+    display: flex;
+}
+
+
+
+
+
+#demoContainer {
+    position: relative;
+    width: 1000px;
+    height: 1000px;
+    margin: auto;
+    touch-action: none;
+}
+#demoContainer.maximised {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+}
+
+#settingsContainer {
+    position: absolute;
+    top: 20px;
+    right: 0px;
+    user-select: none;
+}
+
+.demoSetting {
+    display: flex;
+    padding: 3px;
+    gap: 10px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: var(--demo-theme-color);
+    font-family: monospace;
+    font-size: 1.1rem;
+    width: 400px;
+}
+
+.demoSetting > div:first-child {
+    flex: 55;
+    text-align: right;
+}
+.demoSetting > div:nth-child(2) {
+    flex: 45;
+}
+
+.demoSetting input[type=range] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: calc(100% - 3px);
+    background-color: var(--demo-theme-secondary-color);
+}
+.demoSetting input[type=range]::after {
+    content: attr(data-value);
+    color: var(--demo-theme-color);
+    position: relative;
+    top: 3px;
+    right: 3px;
+    margin-left: 5px;
+}
+.demoSetting input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: var(--demo-theme-color);
+    cursor: pointer;
+}
+.demoSetting input[type=range]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: var(--demo-theme-color);
+    cursor: pointer;
+}
+
+.demoSetting input[type=checkbox] {
+    accent-color: var(--demo-theme-color);
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+.demoSetting input[type=checkbox]:not(:checked) {
+    appearance: none;
+   -webkit-appearance: none;
+   -moz-appearance: none;
+}
+.demoSetting input[type=checkbox]:not(:checked)::before {
+    content: "";
+    display: block;
+    width: 20px;
+    height: 20px;
+    background-color: var(--demo-theme-color);
+    opacity: 0.3;
+    border-radius: 2px;
+}
+
+.demoSetting button {
+    margin: 3px;
+    font-size: 1rem;
+    color: var(--demo-theme-color);
+    background-color: rgba(0, 0, 0, 0);
+    border: 1px solid var(--demo-theme-color);
+    cursor: pointer;
+}
+.demoSetting button:hover {
+    color: black;
+    background-color: var(--demo-theme-color);
+}
+
+.demoSetting input[type=color] {
+    background-color: var(--demo-theme-secondary-color);
+    border: none;
+    cursor: pointer;
+}
