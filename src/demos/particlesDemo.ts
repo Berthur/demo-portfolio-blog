@@ -3,7 +3,7 @@ import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { Demo } from "./demo";
-import { BooleanSetting, ButtonSetting, ColorSchemeSetting, NumberSetting } from "../setting";
+import { BooleanSetting, ButtonSetting, ColorSchemeSetting, NumberSetting, Settings } from "../settings";
 import { glsl, getMaxTextureSize, PseudoPointsGeometry } from "../utils";
 
 const MAX_TEXTURE_DIM = getMaxTextureSize();
@@ -157,7 +157,8 @@ export class ParticlesDemo extends Demo {
     }
 
     private createSettings(): void {
-        const container = document.getElementById('settingsContainer');
+        const settings = new Settings();
+        this.container.append(settings.element);
 
         const countsFormatter = (v: number) => {
             const n = Math.pow(10, v);
@@ -167,14 +168,14 @@ export class ParticlesDemo extends Demo {
         };
 
         const particleCount = new NumberSetting('Particle count', ~~Math.log10(this.n), 0, 8, 1, countsFormatter);
-        container.append(particleCount.element);
+        settings.add(particleCount);
         particleCount.subscribe(v => {
             this.n = ~~Math.pow(10, v);
             this.restart();
         });
 
         const pointSize = new NumberSetting('Particle size', 1, 1, 20, 1);
-        container.append(pointSize.element);
+        settings.add(pointSize);
         pointSize.subscribe(v => {
             this.material.uniforms.pointSize.value = v;
             if (v === 1) {
@@ -189,13 +190,13 @@ export class ParticlesDemo extends Demo {
         });
 
         const viscosity = new NumberSetting('Viscosity', 1, 0.1, 30, 0.1, v => v.toFixed(1));
-        container.append(viscosity.element);
+        settings.add(viscosity);
         viscosity.subscribe(v => {
             this.computePass.material.uniforms.damping.value = 0.01 * v;
         });
 
         const opacity = new NumberSetting('Opacity', 0.7, 0.01, 1, 0.01, v => v.toFixed(2));
-        container.append(opacity.element);
+        settings.add(opacity);
         opacity.subscribe(v => {
             this.material.uniforms.opacity.value = v;
         });
@@ -204,7 +205,7 @@ export class ParticlesDemo extends Demo {
             'Color scheme',
             `#${ new Color(0.0, 0.3, 0.0).getHexString() },#${ new Color(0.0, 0.7, 0.5).getHexString() },#${ new Color(0.0, 0.0, 1.0).getHexString() }`
         );
-        container.append(colorScheme.element);
+        settings.add(colorScheme);
         colorScheme.subscribe(v => {
             const colors = v.split(',');
             this.material.uniforms.c0.value.set(colors[0]);
@@ -213,14 +214,14 @@ export class ParticlesDemo extends Demo {
         });
 
         const borderBounce = new BooleanSetting('Border bounce', false);
-        container.append(borderBounce.element);
+        settings.add(borderBounce);
         borderBounce.subscribe(v => {
             this.computePass.material.defines.BORDERS_REFLECT = v;
             this.computePass.material.needsUpdate = true;
         });
 
         const expandButton = new ButtonSetting('Expand window', 'Minimize window', false);
-        container.append(expandButton.element);
+        settings.add(expandButton);
         expandButton.subscribe(v => {
             if (v) this.container.classList.add('maximised');
             else this.container.classList.remove('maximised');

@@ -4,7 +4,7 @@ import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { Demo } from "./demo";
-import { BooleanSetting, ButtonSetting, NumberSetting } from "../setting";
+import { BooleanSetting, ButtonSetting, NumberSetting, Settings } from "../settings";
 import { glsl, getMaxTextureSize, PseudoPointsGeometry } from "../utils";
 
 const MAX_TEXTURE_DIM = Math.min(getMaxTextureSize(), 4096);
@@ -314,7 +314,8 @@ export class TrafficDemo extends Demo {
     }
 
     private createSettings(): void {
-        const container = document.getElementById('settingsContainer');
+        const settings = new Settings();
+        this.container.append(settings.element);
 
         const counts = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000];
         const countsFormatter = (v: number) => {
@@ -324,14 +325,14 @@ export class TrafficDemo extends Demo {
         };
 
         const carCount = new NumberSetting('Car count', counts.indexOf(this.n), 0, counts.length - 1, 1, countsFormatter);
-        container.append(carCount.element);
+        settings.add(carCount);
         carCount.subscribe(v => {
             this.n = counts[v];
             this.restart();
         });
 
         const blockN = new NumberSetting('Grid size', 5, 2, 100, 1);
-        container.append(blockN.element);
+        settings.add(blockN);
         blockN.subscribe(v => {
             this.blockN = v;
             this.gridSize = this.blockN * BLOCK_GRID_SIZE;
@@ -339,14 +340,14 @@ export class TrafficDemo extends Demo {
         });
 
         const trafficEnabled = new BooleanSetting('Traffic enabled', true);
-        container.append(trafficEnabled.element);
+        settings.add(trafficEnabled);
         trafficEnabled.subscribe(v => {
             this.computePass.material.defines.TRAFFIC_CONTROL = v;
             this.computePass.material.needsUpdate = true;
         });
 
-        const debugGrid = new BooleanSetting('Debug mode', false);
-        container.append(debugGrid.element);
+        const debugGrid = new BooleanSetting('Show grid state', false);
+        settings.add(debugGrid);
         debugGrid.subscribe(v => {
             this.backgroundPass.material.defines.SHOW_GRID = v;
             this.backgroundPass.material.needsUpdate = true;
@@ -357,7 +358,7 @@ export class TrafficDemo extends Demo {
         });
 
         const expandButton = new ButtonSetting('Expand window', 'Minimize window', false);
-        container.append(expandButton.element);
+        settings.add(expandButton);
         expandButton.subscribe(v => {
             if (v) this.container.classList.add('maximised');
             else this.container.classList.remove('maximised');

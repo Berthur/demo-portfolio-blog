@@ -4,7 +4,7 @@ import { glsl } from "../utils";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass";
-import { ButtonSetting, NumberSetting } from "../setting";
+import { ButtonSetting, NumberSetting, Settings } from "../settings";
 
 export class FractalDemo extends Demo {
     private readonly dimensions = new Vector2();
@@ -178,14 +178,15 @@ export class FractalDemo extends Demo {
     }
 
     private createSettings(): void {
-        const container = document.getElementById('settingsContainer');
+        const settings = new Settings();
+        this.container.append(settings.element);
 
         const aaFormatter = (v: number) => {
             return v > 1 ? `${v}x${v}` : 'None';
         };
 
         const iterations = new NumberSetting('Iterations', 1000, 10, 10000, 10);
-        container.append(iterations.element);
+        settings.add(iterations);
         iterations.subscribe(v => {
             this.shaderPass.material.defines.MAX_ITERATIONS = v;
             this.shaderPass.material.needsUpdate = true;
@@ -193,7 +194,7 @@ export class FractalDemo extends Demo {
         });
 
         const aaSamples = new NumberSetting('Antialiasing', 2, 1, 5, 1, aaFormatter);
-        container.append(aaSamples.element);
+        settings.add(aaSamples);
         aaSamples.subscribe(v => {
             this.shaderPass.material.defines.AA = v;
             this.shaderPass.material.needsUpdate = true;
@@ -201,7 +202,7 @@ export class FractalDemo extends Demo {
         });
 
         const expandButton = new ButtonSetting('Expand window', 'Minimize window', false);
-        container.append(expandButton.element);
+        settings.add(expandButton);
         expandButton.subscribe(v => {
             if (v) this.container.classList.add('maximised');
             else this.container.classList.remove('maximised');

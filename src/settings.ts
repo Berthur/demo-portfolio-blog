@@ -1,4 +1,17 @@
-import { Color } from "three";
+
+export class Settings {
+
+    element: HTMLElement;
+
+    constructor() {
+        this.element = document.createElement('div');
+        this.element.id = 'settingsContainer';
+    }
+
+    add<T>(setting: Setting<T>) {
+        this.element.append(setting.element);
+    }
+}
 
 export abstract class Setting<T> {
     private val: T;
