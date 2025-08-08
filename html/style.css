@@ -109,8 +109,8 @@ a:hover {
 
 #demoContainer {
     position: relative;
-    width: 1000px;
-    height: 1000px;
+    width: min(90vw, 90vh, 1000px);
+    height: min(90vw, 90vh, 1000px);
     margin: auto;
     touch-action: none;
 }
