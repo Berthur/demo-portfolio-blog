@@ -362,6 +362,7 @@ export class TrafficDemo extends Demo {
         expandButton.subscribe(v => {
             if (v) this.container.classList.add('maximised');
             else this.container.classList.remove('maximised');
+            settings.setDefaultExpansion();
         });
     }
 }

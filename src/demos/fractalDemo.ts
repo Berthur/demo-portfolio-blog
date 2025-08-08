@@ -207,6 +207,7 @@ export class FractalDemo extends Demo {
             if (v) this.container.classList.add('maximised');
             else this.container.classList.remove('maximised');
             this.needsRender = true;
+            settings.setDefaultExpansion();
         });
     }
 }

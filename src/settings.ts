@@ -26,12 +26,16 @@ export class Settings {
             else this.collapse();
         });
 
-        if (window.innerWidth < 800 || window.innerHeight < 800) this.collapse();
-        else this.expand();
+        this.setDefaultExpansion();
     }
 
     add<T>(setting: Setting<T>) {
         this.innerContainer.append(setting.element);
+    }
+
+    setDefaultExpansion(): void {
+        if (window.innerWidth < 800 || window.innerHeight < 800) this.collapse();
+        else this.expand();
     }
 
     private expand(): void {
