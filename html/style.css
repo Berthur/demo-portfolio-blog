@@ -151,6 +151,7 @@ a:hover {
     font-family: monospace;
     font-size: 1.1rem;
     width: 400px;
+    max-width: calc(90vw - 5px);
 }
 
 .demoSetting > div:first-child {

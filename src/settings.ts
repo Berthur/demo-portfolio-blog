@@ -26,7 +26,8 @@ export class Settings {
             else this.collapse();
         });
 
-        this.expand();
+        if (window.innerWidth < 800 || window.innerHeight < 800) this.collapse();
+        else this.expand();
     }
 
     add<T>(setting: Setting<T>) {
@@ -40,7 +41,7 @@ export class Settings {
     }
 
     private collapse(): void {
-        this.expandButton.innerHTML = `${ gearChar } ${ arrowSEChar }`; // Mirrorred horizontally in CSS
+        this.expandButton.innerHTML = gearChar;
         this.innerContainer.style.display = 'none';
         this.collapsed = true;
     }
