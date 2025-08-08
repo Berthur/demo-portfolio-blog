@@ -126,15 +126,28 @@ a:hover {
     position: absolute;
     top: 20px;
     right: 0px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: var(--demo-theme-color);
     user-select: none;
+}
+
+#settingsContainer .expandButton {
+    display: inline-block;
+    transform: scaleX(-1);
+    font-size: 1.5rem;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+#settingsContainer .expandButton:hover {
+    color: black;
+    background-color: var(--demo-theme-color);
 }
 
 .demoSetting {
     display: flex;
     padding: 3px;
     gap: 10px;
-    background-color: rgba(0, 0, 0, 0.5);
-    color: var(--demo-theme-color);
     font-family: monospace;
     font-size: 1.1rem;
     width: 400px;

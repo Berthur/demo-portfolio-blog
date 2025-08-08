@@ -1,15 +1,48 @@
 
+const arrowSEChar = '&#8690;';
+const arrowNWChar = '&#8689;';
+const gearChar = '&#9881;';
+
 export class Settings {
 
     element: HTMLElement;
+    private innerContainer: HTMLElement;
+    private expandButton: HTMLElement;
+    private collapsed = false;
 
     constructor() {
         this.element = document.createElement('div');
         this.element.id = 'settingsContainer';
+
+        this.innerContainer = document.createElement('div');
+        this.innerContainer.classList.add('innerContainer');
+        this.element.append(this.innerContainer);
+
+        this.expandButton = document.createElement('div');
+        this.expandButton.classList.add('expandButton');
+        this.element.append(this.expandButton);
+        this.expandButton.addEventListener('click', () => {
+            if (this.collapsed) this.expand();
+            else this.collapse();
+        });
+
+        this.expand();
     }
 
     add<T>(setting: Setting<T>) {
-        this.element.append(setting.element);
+        this.innerContainer.append(setting.element);
+    }
+
+    private expand(): void {
+        this.expandButton.innerHTML = arrowNWChar;
+        this.innerContainer.style.display = 'block';
+        this.collapsed = false;
+    }
+
+    private collapse(): void {
+        this.expandButton.innerHTML = `${ gearChar } ${ arrowSEChar }`; // Mirrorred horizontally in CSS
+        this.innerContainer.style.display = 'none';
+        this.collapsed = true;
     }
 }
 
