@@ -279,8 +279,10 @@ export class TrafficDemo extends Demo {
 
     onResize(width: number, height: number) {
         this.renderer.setSize(width, height);
+        this.renderer.setPixelRatio(devicePixelRatio);
         this.composer.setSize(width, height);
-        this.renderer.getSize(this.dimensions);
+        this.composer.setPixelRatio(devicePixelRatio);
+        this.renderer.getSize(this.dimensions).multiplyScalar(devicePixelRatio);
         this.camera.aspect = width / height;
         this.camera.updateProjectionMatrix();
     }
