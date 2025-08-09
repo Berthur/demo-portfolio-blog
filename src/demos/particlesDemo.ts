@@ -32,7 +32,7 @@ export class ParticlesDemo extends Demo {
         container.prepend(this.canvas);
 
         this.canvas.addEventListener('pointermove', e => {
-            this.mousePos.set(e.offsetX, e.offsetY);
+            this.mousePos.set(e.offsetX, e.offsetY).multiplyScalar(devicePixelRatio);
         });
 
         const texHeight = Math.ceil(this.n / MAX_TEXTURE_DIM);
@@ -84,7 +84,8 @@ export class ParticlesDemo extends Demo {
 
     onResize(width: number, height: number) {
         this.renderer.setSize(width, height);
-        this.renderer.getSize(this.dimensions);
+        this.renderer.setPixelRatio(devicePixelRatio);
+        this.renderer.getSize(this.dimensions).multiplyScalar(devicePixelRatio);
     }
     
     private initializeTextures(): void {
@@ -192,7 +193,7 @@ export class ParticlesDemo extends Demo {
         const viscosity = new NumberSetting('Viscosity', 1, 0.1, 30, 0.1, v => v.toFixed(1));
         settings.add(viscosity);
         viscosity.subscribe(v => {
-            this.computePass.material.uniforms.damping.value = 0.01 * v;
+            this.computePass.material.uniforms.damping.value = v;
         });
 
         const opacity = new NumberSetting('Opacity', 0.7, 0.01, 1, 0.01, v => v.toFixed(2));
@@ -235,7 +236,7 @@ const ParticleShader = {
     uniforms: {
         viewSize: { value: new Vector2(1, 1) },
         delta: { value: 0 },
-        damping: { value: 0.01 },
+        damping: { value: 1 },
         nextState: { value: null },
         texWidth: { value: MAX_TEXTURE_DIM },
     },
@@ -283,7 +284,7 @@ const ParticleShader = {
             vec2 dir = normalize(corrMousePos - p);
             vec2 a = 0.1 / clamp((dist * dist), 0.01, 4.0) * dir;
             v += d * a;
-            v *= (1.0 - damping);
+            v *= max(0.5, (1.0 - d * damping));
 
             vec2 p1 = p + d * v;
 
