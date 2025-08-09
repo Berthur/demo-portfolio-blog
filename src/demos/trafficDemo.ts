@@ -449,7 +449,6 @@ const SimulationShader = {
 
         #define EPSILON 0.00001
 
-        uniform vec2 viewSize;
         uniform int texWidth;
         uniform float time;
         uniform float delta;
@@ -480,7 +479,6 @@ const SimulationShader = {
         }
 
         bool isIntersection(ivec2 c) {
-            // TODO: Input as uniforms?
             float scaleFactor = 0.5;
             float streetWidth = 0.35 * scaleFactor / blockN;
 
@@ -518,9 +516,6 @@ const SimulationShader = {
         }
 
         void main() {
-            float aspect = viewSize.x / viewSize.y;
-            float maxViewSize = max(viewSize.x, viewSize.y);
-
             float unitFactor = 2.0 / (blockWorldSize * blockN);
 
             // Decide deadlock break direction:
@@ -558,12 +553,10 @@ const SimulationShader = {
             ivec2 gridDir = getCardinalDirection(v);
             ivec2 rightDir = -rotate90(gridDir);
 
-            //float maxSpeed = targetSpeed;
             float desiredSpeed = targetSpeed;
             float maxAcceleration = 5.0;
             float maxBraking = -20.0;
             float intersectionSpeed = min(targetSpeed, 4.0);
-            //float a = maxAcceleration;
 
             vec2 pNorm = 0.5 * (p + 1.0);
             ivec2 cellCoord = ivec2(pNorm * float(gridSize));
