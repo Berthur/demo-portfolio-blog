@@ -190,7 +190,7 @@ export class ParticlesDemo extends Demo {
             }
         });
 
-        const viscosity = new NumberSetting('Viscosity', 1, 0.1, 30, 0.1, v => v.toFixed(1));
+        const viscosity = new NumberSetting('Viscosity', 0.5, 0.1, 10, 0.1, v => v.toFixed(1));
         settings.add(viscosity);
         viscosity.subscribe(v => {
             this.computePass.material.uniforms.damping.value = v;
@@ -236,7 +236,7 @@ const ParticleShader = {
     uniforms: {
         viewSize: { value: new Vector2(1, 1) },
         delta: { value: 0 },
-        damping: { value: 1 },
+        damping: { value: 0.5 },
         nextState: { value: null },
         texWidth: { value: MAX_TEXTURE_DIM },
     },
