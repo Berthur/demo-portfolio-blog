@@ -98,8 +98,10 @@ export class FractalDemo extends Demo {
             this.zoomRadius *= factor;
         }
         this.renderer.setSize(width, height);
+        this.renderer.setPixelRatio(devicePixelRatio);
         this.composer.setSize(width, height);
-        this.renderer.getSize(this.dimensions);
+        this.composer.setPixelRatio(devicePixelRatio);
+        this.renderer.getSize(this.dimensions).multiplyScalar(devicePixelRatio);
         this.needsRender = true;
     }
 
@@ -113,7 +115,7 @@ export class FractalDemo extends Demo {
         const mouseMovement = new Vector2();
         this.canvas.addEventListener('mousemove', (e: MouseEvent) => {
             if (this.dragging) {
-                mouseMovement.set(e.movementX, e.movementY);
+                mouseMovement.set(e.movementX, e.movementY).multiplyScalar(devicePixelRatio);
                 this.pan(mouseMovement);
                 e.preventDefault();
                 e.stopPropagation();
@@ -122,8 +124,8 @@ export class FractalDemo extends Demo {
 
         const newZoomTarget = new Vector2();
         this.canvas.addEventListener('wheel', (e: WheelEvent) => {
-            const zoomDelta = -2.0 * (e.deltaY || 0) / this.dimensions.y;
-            newZoomTarget.set(e.offsetX, e.offsetY);
+            const zoomDelta = -2.0 * (e.deltaY || 0) / this.dimensions.y * devicePixelRatio;
+            newZoomTarget.set(e.offsetX, e.offsetY).multiplyScalar(devicePixelRatio);
             this.zoom(newZoomTarget, zoomDelta);
             e.preventDefault();
             e.stopPropagation();
@@ -139,7 +141,7 @@ export class FractalDemo extends Demo {
 
             const canvasRect = this.canvas.getBoundingClientRect();
             const touch0 = e.touches[0];
-            touchPoint0.set(touch0.clientX - canvasRect.x, touch0.clientY - canvasRect.y);
+            touchPoint0.set(touch0.clientX - canvasRect.x, touch0.clientY - canvasRect.y).multiplyScalar(devicePixelRatio);
 
             if (e.touches.length === 1) {
                 dragPoint.copy(touchPoint0);
@@ -153,7 +155,7 @@ export class FractalDemo extends Demo {
 
             } else {
                 const touch1 = e.touches[1];
-                touchPoint1.set(touch1.clientX - canvasRect.x, touch1.clientY - canvasRect.y);
+                touchPoint1.set(touch1.clientX - canvasRect.x, touch1.clientY - canvasRect.y).multiplyScalar(devicePixelRatio);
                 const d = touchPoint0.distanceTo(touchPoint1);
 
                 dragPoint.lerpVectors(touchPoint0, touchPoint1, 0.5);
