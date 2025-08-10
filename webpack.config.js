@@ -26,6 +26,9 @@ module.exports = {
       patterns: [
         { from: './html' },
         { from: './resources', to: './resources' },
+
+        { from: './node_modules/katex/dist/katex.min.css', to: 'lib/katex/' },
+        { from: './node_modules/katex/dist/fonts/', to: 'lib/katex/fonts/' },
       ],
     }),
   ],
