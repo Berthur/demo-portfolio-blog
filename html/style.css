@@ -20,6 +20,14 @@ a:hover {
     filter: brightness(0.7);
 }
 
+.eq {
+    text-align: center;
+}
+.eq > span-latex {
+    display: inline-block;
+    text-align: left;
+}
+
 #banner {
     height: calc(80px - 2*20px);
     padding: 20px;
@@ -105,7 +113,22 @@ a:hover {
 
 
 
+.demoText {
+    width: 90vw;
+    max-width: 1000px;
+    margin: auto;
+    font-size: 1.1rem;
+    line-height: 1.4rem;
+    text-align: justify;
+    color: #cccccc;
+}
 
+.demoText h1 {
+    text-align: center;
+}
+.demoText h1, .demoText h2, .demoText h3 {
+    margin-top: 3rem;
+}
 
 #demoContainer {
     position: relative;
@@ -120,6 +143,7 @@ a:hover {
     left: 0;
     width: 100vw;
     height: 100vh;
+    z-index: 10;
 }
 
 #settingsContainer {
