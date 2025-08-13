@@ -28,6 +28,12 @@ a:hover {
     text-align: left;
 }
 
+#pageContainer {
+    padding-bottom: 40px;
+    position: relative;
+    min-height: calc(100vh - 40px);
+}
+
 #banner {
     height: calc(80px - 2*20px);
     padding: 20px;
@@ -53,6 +59,20 @@ a:hover {
 #banner a {
     color: inherit;
     text-decoration: inherit;
+}
+
+#footer {
+    position: absolute;
+    bottom: 0;
+    height: 20px;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+}
+#footer > *:nth-child(1) {
+    float: left;
+}
+#footer > *:nth-child(2) {
+    float: right;
 }
 
 .textbox {
@@ -121,6 +141,7 @@ a:hover {
     line-height: 1.4rem;
     text-align: justify;
     color: #cccccc;
+    margin-bottom: 50px;
 }
 
 .demoText h1 {
