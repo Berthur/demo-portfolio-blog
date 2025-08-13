@@ -19,52 +19,15 @@
             <div class="demoText">
                 <h1>Particle System</h1>
 
-                <p>This demo features an interactive particle system, where particles flow around according to some physics-inspired laws and interact with mouse/touch movements in real-time. The goal here is not to simulate anything out of reality, but rather something that is satisfying to play around with. A bit of digital art.</p>
+                <p>An interactive particle system, where particles flow around according to some physics-inspired laws and interact with mouse/touch movements in real-time. The goal here is not to simulate anything out of reality, but rather something that is satisfying to play around with. A bit of digital art.</p>
 
-                <h2>Simulation</h2>
+                <p>This demo shows how simple general computation can be performed in WebGL alongside rendering, despite the lack of actual compute shaders in WebGL. Here, the positions and velocities of the particles are being computed on the GPU for every frame, allowing a very large number of particles to be simulated in real-time.</p>
 
-                <p>We can simulate a simple gravitational field around the cursor by digging up Newton's law of <a target="_blank" href="https://en.wikipedia.org/wiki/Newton%27s_law_of_universal_gravitation">universal gravitation</a>:</p>
+                <p>To interact with the demo, move the cursor or drag a finger around at different speeds. The simulation and visuals can be customized in the settings above. You can test the performance of the system by changing the particle count, but please beware that the highest counts may crash the browser on weaker devices.</p>
 
-                <p class="eq"><span-latex>
-                    F = G \frac{m_1 m_2}{r^2}
-                </span-latex></p>
+                <p>When trying higher particle counts, it is recommended to use a single-pixel particle size, fullscreen mode and a lower the particle opacity for better visuals.</p>
 
-                <p>If we imagine that all particles have some small "mass", and the cursor has a very large one, we can ignore any gravitational effect that particles would have on each other &mdash; conveniently turning the problem from a computationally hard one to a trivial one. All particles can now be processed independently in parallel, and they only need to be aware of their own state and the cursor position. By inserting the equation above into another classical Newtonian equation: <span-latex>F = m a</span-latex>, we obtain a function for the acceleration of a particle:</p>
-
-                <p class="eq"><span-latex>a = G \frac{m_{particle} m_{cursor}}{r^2 m_{particle}} = G \frac{m_{cursor}}{r^2}</span-latex></p>
-
-                <p>where <span-latex>r</span-latex> is the distance from the particle to the cursor. From here, we can abstract away the gravitational constant and cursor mass and combine them into some arbitrary constant <span-latex>\alpha</span-latex> that we choose based on what looks good and feels fun &mdash; let's call it our artistic constant. Now, mass is literally out of the equation.</p>
-
-                <p>Having obtained an expression for the acceleration of each particle at any point in time, what is left is simply to keep track of the position and velocity for each particle. We can express the situation with a simple differential equation with respect to time <span-latex>t</span-latex>:</p>
-
-                <p class="eq"><span-latex>
-                    a = \frac{dv}{d t} = \frac{d^2 p}{dt^2}
-                </span-latex></p>
-
-                <p>But since we are programming for the discrete world, we can spare ourselves the more rigorous calculus and solve it numerically, for each frame as follows:</p>
-
-                <p class="eq"><span-latex>
-                        a_i = \frac{\alpha}{r^2} \\
-                        v_i = v_{i - 1} + \Delta t a_i \\
-                        p_i = p_{i - 1} + \Delta t v_i
-                </span-latex></p>
-
-                <p>where <span-latex>\Delta t</span-latex> is the time delta between the current frame and the previous frame. And finally, in vector form:</p>
-
-                <p class="eq"><span-latex>
-                    \vec{r} = \vec{\vec{c}} - \vec{p_{i - 1}} \\
-                    \vec{a_i} = \alpha \vec{r} / \norm{\vec{r}}^3 \\
-                    \vec{v_i} = \vec{v_{i - 1}} + \Delta t \vec{a_i} \\
-                    \vec{p_i} = \vec{p_{i - 1}} + \Delta t \vec{v_i}
-                </span-latex></p>
-
-                <p>which is already clear enough to serve as our pseudocode. <span-latex>\vec{c}</span-latex> here is the position of the cursor at the time of computation of the frame. This is essentially the entire computation step, except we also add a little damping, as well as a clamping effect, for stability. The clamping effect also serves to give a little pulsating effect around the cursor, like a stronger force around the nucleus of an atom, keeping the fastest particles from being hurled away into oblivion past the cursor at the same speed at which they came in. (Forgive the handwavy explanation, but today we are artists.)</p>
-
-                <h2>WebGL implementation</h2>
-
-                <p>The system supports particle counts in the order of millions, and on powerful hardware it can handle tens or hundreds of millions. To achieve this, not only the rendering but also the computation is done on the GPU, in WebGL. Rendering points in WebGL is straight-forward using the pipeline as intended - the vertex shader calculates the position and the fragment shader draws the point with a desired colour. However, the particle simulation step requires a bit of additional thought. For each frame, we want each particle to remember its previous position (and maybe some additional parameters like velocity or acceleration), and update itself for the current frame. But in WebGL, this is not possible in a single render pass: The vertex shader does not have a way to keep track of such a state.</p>
-
-                <p>TODO: To be continued...</p>
+                <p>For more information about the underlying math and pipeline, see the <a href="/blog/particles.html">dev blog entry</a> about this demo.</p>
             </div>
         </div>
         <script type="module" src="/main-bundle.js"></script>

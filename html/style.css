@@ -137,6 +137,10 @@ a:hover {
     margin: auto;
     touch-action: none;
 }
+#demoContainer.compact {
+    width: min(90vw, 90vh, 700px);
+    height: min(90vw, 90vh, 700px);
+}
 #demoContainer.maximised {
     position: fixed;
     top: 0;
