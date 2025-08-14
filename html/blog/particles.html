@@ -17,6 +17,8 @@
             </div>
 
             <div class="demoText">
+                <div class="blogLinks"></div>
+
                 <h1>Particle System</h1>
 
                 <p>This demo features an interactive particle system, where particles flow around according to some physics-inspired laws and interact with mouse/touch movements in real-time. The goal here is not to simulate anything out of reality, but rather something that is satisfying to play around with. A bit of digital art.</p>
@@ -67,6 +69,8 @@
                 <p>The system supports particle counts in the order of millions, and on powerful hardware it can handle tens or hundreds of millions. To achieve this, not only the rendering but also the computation is done on the GPU, in WebGL. Rendering points in WebGL is straight-forward using the pipeline as intended - the vertex shader calculates the position and the fragment shader draws the point with a desired colour. However, the particle simulation step requires a bit of additional thought. For each frame, we want each particle to remember its previous position (and maybe some additional parameters like velocity or acceleration), and update itself for the current frame. But in WebGL, this is not possible in a single render pass: The vertex shader does not have a way to keep track of such a state.</p>
 
                 <p>TODO: To be continued...</p>
+
+                <div class="blogLinks"></div>
             </div>
 
             <div id="footer"><div></div><div>Copyright Jon Galán 2025</div></div>
@@ -74,6 +78,8 @@
         <script type="module" src="/main-bundle.js"></script>
         <script type="module">
             const app = new App();
+            app.populateBlogLinks();
+
             const container = document.getElementById('demoContainer');
             const demo = new app.demos.particles(container, 1000000);
             demo.start();

@@ -1,0 +1,11 @@
+{
+    "blog": {
+        "entries": [
+            {
+                "title": "Interactive Particle System",
+                "path": "blog/particles.html",
+                "date": "2025-08-14"
+            }
+        ]
+    }
+}

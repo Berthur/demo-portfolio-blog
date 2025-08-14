@@ -131,6 +131,24 @@ a:hover {
     display: flex;
 }
 
+.blogLinks {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+.blogLinks > * {
+    padding: 5px;
+    overflow: hidden;
+}
+.blogLinks a {
+    display: block;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+
+
 
 
 .demoText {
