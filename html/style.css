@@ -85,6 +85,12 @@ a:hover {
     text-align: center;
 }
 
+.indexList {
+    width: 70%;
+    margin: auto;
+    font-size: 1.3rem;
+}
+
 .demosGrid {
     padding: 20px;
     display: flex;
