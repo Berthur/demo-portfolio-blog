@@ -15,7 +15,27 @@
                 <div><a href="/">Jon Galan | Demos</a></div>
                 <div></div>
             </div>
+
             <div id="demoContainer"></div>
+
+            <div class="demoText">
+                <h1>Traffic Simulator</h1>
+
+                <p>A scalable traffic simulator in WebGL. It shows cars on a downtown city grid, following simple right-hand traffic rules.</p>
+
+                <p>Cars drive at different preferred speeds, while avoiding collisions by observing the car in front of them. At intersections, drivers give way to cars coming from the right, and also perform emergency braking when necessary by observing cars in or about to enter their path. In addition, there is a simple deadlock solution that prevents cars to get stuck indefinitely when a four-way deadlock occurs at a crossroads.</p>
+
+                <p>You can move the camera around by rotating (left mouse drag), panning (right mouse drag) and zooming (mouse wheel). On touch screens, you have simple one and two finger dragging and pinch movements at your disposal. To see how the traffic simulation scales, you can increase the car count and grid size in the demo settings. When increasing the car count, make sure to also scale the grid size accordingly or the cars will just be stuck in an eternal traffic jam.</p>
+
+                <h2>Simulation on the GPU</h2>
+
+                <p>Although the traffic simulation itself is highly simplified, the point of this challenge was to make the simulation run completely on the GPU, in WebGL which has very limited tools for general computation. To run in real-time, each car cannot check each other car in the scene as this would be too expensive. A spatial tree structure could mitigate this, but it not feasible with the limited tooling in WebGL, if we want the number of cars to scale to hundreds of thousands or more.</p>
+                
+                <p>Instead, we use a grid state, where we divide up the plane into a grid of roughly car-sized cells, and have each car continuously store its position and state into the cell on which it currently stands. This is achieved by rendering the cars as points on a very low-resolution render target and encoding the car's state into the <span-latex>(r, g, b, a)</span-latex> values of its colour. In that same render pass, the cars can also read from the output of the previous frame to check the grid cells in its surroundings. From these cells, they can see the positions and velocities of nearby cars, and make simple driving decisions accordingly. You can see the state grid in action, overlayed over the rendered plane using the <em>Show grid state</em> checkbox in the demo settings.</em></p>
+                
+                <p>Then, in a second render pass, each car can look up its position and velocity from the grid state texture and render itself correctly. The result is a system that can effortlessly be scaled up to very large city grids while retaining rendering performance.</p>
+            </div>
+
             <div id="footer"><div></div><div>Copyright Jon Galán 2025</div></div>
         </div>
         <script type="module" src="/main-bundle.js"></script>
