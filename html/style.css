@@ -16,9 +16,11 @@ body {
 
 a {
     color: var(--demo-theme-color);
+    text-decoration: none;
 }
 a:hover {
     filter: brightness(0.7);
+    text-decoration: underline;
 }
 
 .eq {
