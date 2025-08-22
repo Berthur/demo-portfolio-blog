@@ -33,6 +33,8 @@
                 
                 <p>Instead, we use a grid state, where we divide up the plane into a grid of roughly car-sized cells, and have each car continuously store its position and state into the cell on which it currently stands. This is achieved by rendering the cars as points on a very low-resolution render target and encoding the car's state into the <span-latex>(r, g, b, a)</span-latex> values of its colour. Conveniently, since the cars are moving in only two of our three dimensions, the pixel colour fits exactly the information we need: <span-latex>(r, g, b, a) = (p_x, p_y, v_x, v_y)</span-latex>.</p>
 
+                <img width="500px" src="../resources/blog/traffic_grid_state.png" alt="Traffic grid state">
+
                 <p>In that same render pass, the cars can also read from the output of the previous frame to check the grid cells in its surroundings. From these cells, they can see the positions and velocities of nearby cars, and make simple driving decisions accordingly. You can see the state grid in action, overlayed over the rendered plane using the <em>Show grid state</em> checkbox in the demo settings.</em></p>
                 
                 <p>Then, in a second render pass, each car can look up its position and velocity from the grid state texture and render itself correctly. The result is a system that can effortlessly be scaled up to very large city grids while retaining rendering performance.</p>

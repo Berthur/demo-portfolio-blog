@@ -178,6 +178,11 @@ a:hover {
 .demoText h1, .demoText h2, .demoText h3 {
     margin-top: 1.5em;
 }
+.demoText img {
+    display: block;
+    margin: auto;
+    max-width: 90%;
+}
 
 #demoContainer {
     position: relative;
