@@ -66,7 +66,14 @@
 
                 <h2>WebGL implementation</h2>
 
-                <p>The system supports particle counts in the order of millions, and on powerful hardware it can handle tens or hundreds of millions. To achieve this, not only the rendering but also the computation is done on the GPU, in WebGL. Rendering points in WebGL is straight-forward using the pipeline as intended - the vertex shader calculates the position and the fragment shader draws the point with a desired colour. However, the particle simulation step requires a bit of additional thought. For each frame, we want each particle to remember its previous position (and maybe some additional parameters like velocity or acceleration), and update itself for the current frame. But in WebGL, this is not possible in a single render pass: The vertex shader does not have a way to keep track of such a state.</p>
+                <p>The system supports particle counts in the order of millions &mdash; on powerful hardware hundreds of millions. To achieve this, not only the rendering but also the computation is done on the GPU, in WebGL. Rendering points in WebGL is straight-forward using the pipeline as intended - the vertex shader calculates the position and the fragment shader draws the point with a desired colour. However, the particle simulation step requires some additional thought. For each frame, we want each particle to remember its previous position (and maybe some additional parameters like velocity or acceleration), and update itself for the current frame. But in WebGL, this is not possible in a single render pass: The vertex shader does not have a way to keep track of such a state.</p>
+
+                <p>The solution is to have two separate render passes, one for computation and one for rendering. In our compute pass, we essentially need to trick WebGL that we are drawing something visually useful, where actually the output is just data that we never show. Instead of rendering it to the screen, we render it into a texture that we then give as input to our second pass.</p>
+
+                <p>The compute pass consists of a simple unit quad, rendered directly onto the render target. We make the render target have at least the same size as the number of particles in our system, so that each pixel corresponds to one particle. Then we clone the render target, so that we can swap between them on each frame: One is the input, the other is the output, and the next frame they swap places. This way, we can feed the previous frame's state into the shader of the current compute pass, which can read the previous state, make its changes and output the new state. The render pass will then use the new state as input to render the particles.</p>
+
+                <img src="../resources/blog/compute-pass-swapping.png" alt="Compute pass swapping">
+                <p class="imgText"><em>Fig. 1:</em> A diagram over how two consecutive frames are rendered, using the data textures in between. Between each frame, the textures swap places.</p>
 
                 <p>TODO: To be continued...</p>
 

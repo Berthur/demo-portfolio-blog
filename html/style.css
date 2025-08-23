@@ -183,6 +183,12 @@ a:hover {
     margin: auto;
     max-width: 90%;
 }
+.demoText .imgText {
+    font-size: 0.8em;
+    text-align: initial;
+    margin-left: 10%;
+    margin-right: 10%;
+}
 
 #demoContainer {
     position: relative;
