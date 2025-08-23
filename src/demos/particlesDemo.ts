@@ -46,7 +46,7 @@ export class ParticlesDemo extends Demo {
 
         this.initializeTextures();
 
-        this.computePass = new ShaderPass(ParticleShader, 'nextState');
+        this.computePass = new ShaderPass(ComputeShader, 'prevState');
         this.computePass.uniforms.mousePos = new Uniform(this.mousePos);
         const renderPass = new RenderPass(this.scene, this.camera);
         renderPass.renderToScreen = true;
@@ -63,7 +63,7 @@ export class ParticlesDemo extends Demo {
         this.material.uniforms.viewSize = new Uniform(this.dimensions);
         this.material.uniforms.texWidth = new Uniform(MAX_TEXTURE_DIM);
         this.material.uniforms.pointSize = new Uniform(1);
-        this.material.uniforms.pointState = new Uniform(null);
+        this.material.uniforms.currState = new Uniform(null);
         this.material.uniforms.delta = new Uniform(0);
         this.material.uniforms.opacity = new Uniform(0.7);
         this.material.defines.SPHERE_PARTICLES = false;
@@ -113,7 +113,7 @@ export class ParticlesDemo extends Demo {
 
     private updateUniforms(delta: number): void {
         this.computePass.uniforms.delta.value = delta;
-        this.material.uniforms.pointState.value = this.nextStateTarget.texture;
+        this.material.uniforms.currState.value = this.nextStateTarget.texture;
     }
 
     start(): void {
@@ -231,13 +231,13 @@ export class ParticlesDemo extends Demo {
     }
 }
 
-const ParticleShader = {
-    name: 'ParticleShader',
+const ComputeShader = {
+    name: 'ComputeShader',
     uniforms: {
         viewSize: { value: new Vector2(1, 1) },
         delta: { value: 0 },
         damping: { value: 0.5 },
-        nextState: { value: null },
+        prevState: { value: null },
         texWidth: { value: MAX_TEXTURE_DIM },
     },
     defines: {
@@ -258,7 +258,7 @@ const ParticleShader = {
         uniform float delta;
         uniform float damping;
         uniform vec2 mousePos;
-        uniform sampler2D nextState;
+        uniform sampler2D prevState;
 
         vec2 aspectCorrect(vec2 v, float aspect) {
             if (aspect < 1.0) v.x *= aspect;
@@ -274,27 +274,29 @@ const ParticleShader = {
             corrMousePos.y = -corrMousePos.y;
             corrMousePos /= maxViewSize;
 
+            vec4 state = texelFetch(prevState, ivec2(gl_FragCoord.xy), 0);
+            vec2 p = state.rg;
+            vec2 v = state.ba;
+
+            vec2 r = corrMousePos - p;
+            float dist = length(r);
+            vec2 dir = r / dist;
+
             float d = 0.001 * delta;
-            int i = int(gl_FragCoord.x);
-            int j = int(gl_FragCoord.y);
-            vec4 state = texelFetch(nextState, ivec2(i, j), 0);
-            vec2 p = state.xy;
-            vec2 v = state.zw;
-            float dist = distance(p, corrMousePos);
-            vec2 dir = normalize(corrMousePos - p);
             vec2 a = 0.1 / clamp((dist * dist), 0.01, 4.0) * dir;
             v += d * a;
             v *= max(0.5, (1.0 - d * damping));
 
-            vec2 p1 = p + d * v;
-
             #ifdef BORDERS_REFLECT
+                vec2 p1 = p + d * v;
                 vec2 borders = aspectCorrect(vec2(1.0, 1.0), aspect);
                 if (p1.x < -borders.x || p1.x > borders.x) v.x = -v.x;
                 if (p1.y < -borders.y || p1.y > borders.y) v.y = -v.y;
             #endif
 
-            gl_FragColor = vec4(p + d * v, v);
+            p += d * v;
+
+            gl_FragColor = vec4(p, v);
         }
     `,
 };
@@ -307,7 +309,7 @@ const vertexShader = glsl`
     uniform vec2 viewSize;
     uniform int texWidth;
     uniform float pointSize;
-    uniform sampler2D pointState;
+    uniform sampler2D currState;
 
     flat out vec2 v;
 
@@ -320,12 +322,13 @@ const vertexShader = glsl`
     void main() {
         float aspect = viewSize.x / viewSize.y;
 
-        vec4 state = texelFetch(pointState, ivec2(gl_VertexID % texWidth, gl_VertexID / texWidth), 0);
-        state.xy = aspectCorrectInv(state.xy, aspect);
+        ivec2 coord = ivec2(gl_VertexID % texWidth, gl_VertexID / texWidth);
+        vec4 state = texelFetch(currState, coord, 0);
+        state.rg = aspectCorrectInv(state.rg, aspect);
 
         gl_PointSize = pointSize;
-        gl_Position = vec4(state.xy, 0.0, 1.0);
-        v = state.zw;
+        gl_Position = vec4(state.rg, 0.0, 1.0);
+        v = state.ba;
     }
 `;
 
@@ -350,7 +353,7 @@ const fragmentShader = glsl`
             localAlpha = 1.0 - r;
         #endif
 
-        float a = length(v);
-        fragColor = vec4(c0 + a * c1 + a * a * c2, opacity * localAlpha);
+        float s = length(v);
+        fragColor = vec4(c0 + s * c1 + s * s * c2, opacity * localAlpha);
     }
 `;
