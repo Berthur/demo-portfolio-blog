@@ -84,7 +84,7 @@
                 <pre>
 int i = int(gl_FragCoord.x);
 int j = int(gl_FragCoord.y);
-vec4 state = texelFetch(prevState, ivec2(i, j), 0);
+vec4 state = texelFetch(prevState, ivec2(gl_FragCoord.xy), 0);
 vec2 p = state.rg;
 vec2 v = state.ba;
 
@@ -111,7 +111,7 @@ uniform sampler2D currState;
 flat out vec2 v;
 
 void main() {
-    ivec coord = ivec2(gl_VertexID % texWidth, gl_VertexID / texWidth);
+    ivec2 coord = ivec2(gl_VertexID % texWidth, gl_VertexID / texWidth);
     vec4 state = texelFetch(currState, coord, 0);
 
     gl_PointSize = pointSize;
