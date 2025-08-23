@@ -175,19 +175,23 @@ a:hover {
 .demoText h1 {
     text-align: center;
 }
-.demoText h1, .demoText h2, .demoText h3 {
-    margin-top: 1.5em;
+.demoText h1 {
+    margin-top: 1em;
+}
+.demoText h2, .demoText h3 {
+    margin-top: 2em;
 }
 .demoText img, 
 .demoText .imgText,
 .demoText pre {
     display: block;
     max-width: 90%;
-    margin: auto;
+    margin: 2rem auto;
 }
 .demoText .imgText {
     font-size: 0.8em;
     text-align: initial;
+    margin-top: -1.5rem;
 }
 .demoText code, .demoText pre {
     background-color: #292929;
@@ -343,7 +347,7 @@ a:hover {
 
 @media (max-width: 600px) {
     body {
-        font-size: 0.7rem;
+        font-size: 0.8rem;
     }
     #banner {
         font-size: 0.9rem;
