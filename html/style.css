@@ -190,11 +190,12 @@ a:hover {
     text-align: initial;
 }
 .demoText code, .demoText pre {
-    background-color: #454545;
+    background-color: #292929;
     padding: 0 0.3em 0.1em 0.3em;
     border-radius: 5px;
 }
 .demoText pre {
+    font-size: 0.9em;
     padding: 0.7em;
     overflow-x: auto;
 }

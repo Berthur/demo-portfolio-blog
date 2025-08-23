@@ -75,11 +75,11 @@
                 <img src="../resources/blog/compute-pass-swapping.png" alt="Compute pass swapping">
                 <p class="imgText"><em>Fig. 1:</em> A diagram over how two consecutive frames are rendered, using the data textures in between. Between each frame, the textures swap places.</p>
 
-                <p>We can choose the datatype of the data texture pixels, so we are not limited to single-byte precision per colour channel, but we are still limited by the number of channels. This demo uses the <code>RGBA</code> format with 32-bit floating point precision. In other words, there's not a lot of room on board: We must make the particle state fit into a 4-dimensional f32 vector. Luckily, that's all the room we need. Since the particles exist in two dimensions, we can encode its position and velocity into the output pixel as follows:</p>
+                <p>We can choose the datatype of the data texture pixels, so we are not limited to single-byte precision per colour channel, but we are still limited by the number of channels. This demo uses the <code>RGBA</code> format with 32-bit floating point precision. In other words, there's not a lot of room on board: We must make the particle state fit into a 4-dimensional vector with f32-typed components. Luckily, that's all the room we need. Since the particles exist in two dimensions, we can encode its position and velocity into the output pixel as follows:</p>
                 
                 <p class="eq"><span-latex>(r, b, g, a) = (p_x, p_y, v_x, v_y)</span-latex>.</p>
 
-                <p>Since acceleration is recomputed for every frame and only depends on the particle and cursor positions, this state is all we need to implement the simulation described above. In actual GLSL shader code, our compute pass might look like this:</p>
+                <p>Since acceleration is recomputed for every frame and only depends on the particle and cursor positions, this state is all we need to implement the simulation described above. In actual GLSL shader code, our compute pass might look roughly like this:</p>
 
                 <pre>
 int i = int(gl_FragCoord.x);
@@ -98,6 +98,40 @@ p += delta * v;
 gl_FragColor = vec4(p, v);</pre>
 
                 <p>And apart from some boilerplate, as well as the damping and clamping mentioned earlier, that's how it looks.</p>
+
+                <p>The next step is to actually render the particles. The easiest way is to use WebGL point primitives. They each correspond to a single vertex with a vertex shader, which can set the position and screen-size of each point. The fragment shader is then run for each pixel inside that area. Normally, the position would be given as an attribute that the vertex shader then transforms in some deterministic manner, but in our case we will ignore the position attribute and instead read out the particle state for the current vertex from our newly updated data texture, as follows:</p>
+
+                <pre>
+precision highp float;
+
+uniform int texWidth;
+uniform float pointSize;
+uniform sampler2D currState;
+
+flat out vec2 v;
+
+void main() {
+    ivec coord = ivec2(gl_VertexID % texWidth, gl_VertexID / texWidth);
+    vec4 state = texelFetch(currState, coord, 0);
+
+    gl_PointSize = pointSize;
+    gl_Position = vec4(state.rg, 0.0, 1.0);
+    v = state.ba;
+}</pre>
+
+                <p>And that's it! The particle system will now work, as long as the fragment shader outputs some visible colour. To make things more interesting (and prettier), we choose this colour based on the speed of the particle, so that faster particles will be rendered with a brighter colour. To achieve this, we output the velocity as a varying to the fragment shader. By making the particles slightly transparent, we get a nicer, smoke-like effect when the number of points is large enough for the resolution:</p>
+
+                <img src="../resources/thumbnails/particles.png" alt="Smoke-like effect with high point density and low opacity">
+                <p class="imgText"><em>Fig. 2:</em> Smoke-like effect when setting a high point density but a low opacity</p>
+
+                <p>As playing around with these parameters is meant to be part of the user experience, the demo exposes a few more as settings:</p>
+                
+                <ul>
+                    <li>A particle size, which makes particles larger than the single-pixel default, shaded as blurry spheres</li>
+                    <li>A 'viscosity' setting that changes how much dampling is applied. Low damping makes the system faster but less stable, higher damping makes it resemble a viscous fluid.</li>
+                    <li>A border bounce setting, which makes particles reflect away form the borders instead of continuing in and out of view</li>
+                    <li>A colour scheme, which changes the base colours of particles at different speeds</li>
+                </ul>
 
                 <div class="blogLinks"></div>
             </div>
