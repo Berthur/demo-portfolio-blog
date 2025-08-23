@@ -203,6 +203,9 @@ a:hover {
     padding: 0.7em;
     overflow-x: auto;
 }
+.demoText ul, .demoText ol {
+    text-align: initial;
+}
 
 #demoContainer {
     position: relative;
