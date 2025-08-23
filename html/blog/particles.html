@@ -75,7 +75,29 @@
                 <img src="../resources/blog/compute-pass-swapping.png" alt="Compute pass swapping">
                 <p class="imgText"><em>Fig. 1:</em> A diagram over how two consecutive frames are rendered, using the data textures in between. Between each frame, the textures swap places.</p>
 
-                <p>TODO: To be continued...</p>
+                <p>We can choose the datatype of the data texture pixels, so we are not limited to single-byte precision per colour channel, but we are still limited by the number of channels. This demo uses the <code>RGBA</code> format with 32-bit floating point precision. In other words, there's not a lot of room on board: We must make the particle state fit into a 4-dimensional f32 vector. Luckily, that's all the room we need. Since the particles exist in two dimensions, we can encode its position and velocity into the output pixel as follows:</p>
+                
+                <p class="eq"><span-latex>(r, b, g, a) = (p_x, p_y, v_x, v_y)</span-latex>.</p>
+
+                <p>Since acceleration is recomputed for every frame and only depends on the particle and cursor positions, this state is all we need to implement the simulation described above. In actual GLSL shader code, our compute pass might look like this:</p>
+
+                <pre>
+int i = int(gl_FragCoord.x);
+int j = int(gl_FragCoord.y);
+vec4 state = texelFetch(prevState, ivec2(i, j), 0);
+vec2 p = state.rg;
+vec2 v = state.ba;
+
+vec2 r = mousePos - p;
+float dist = length(r);
+
+vec2 a = alpha / (dist * dist * dist) * r;
+v += delta * a;
+p += delta * v;
+
+gl_FragColor = vec4(p, v);</pre>
+
+                <p>And apart from some boilerplate, as well as the damping and clamping mentioned earlier, that's how it looks.</p>
 
                 <div class="blogLinks"></div>
             </div>

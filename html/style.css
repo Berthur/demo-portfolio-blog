@@ -178,16 +178,25 @@ a:hover {
 .demoText h1, .demoText h2, .demoText h3 {
     margin-top: 1.5em;
 }
-.demoText img {
+.demoText img, 
+.demoText .imgText,
+.demoText pre {
     display: block;
-    margin: auto;
     max-width: 90%;
+    margin: auto;
 }
 .demoText .imgText {
     font-size: 0.8em;
     text-align: initial;
-    margin-left: 10%;
-    margin-right: 10%;
+}
+.demoText code, .demoText pre {
+    background-color: #454545;
+    padding: 0 0.3em 0.1em 0.3em;
+    border-radius: 5px;
+}
+.demoText pre {
+    padding: 0.7em;
+    overflow-x: auto;
 }
 
 #demoContainer {
