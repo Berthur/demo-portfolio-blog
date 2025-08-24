@@ -252,6 +252,9 @@ a:hover {
 .demoLinkBar img {
     height: 1em;
 }
+.demoLinkBar .bi {
+    color: white;
+}
 
 #settingsContainer {
     position: absolute;
