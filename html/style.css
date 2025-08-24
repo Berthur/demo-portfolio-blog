@@ -181,7 +181,7 @@ a:hover {
 .demoText h2, .demoText h3 {
     margin-top: 2em;
 }
-.demoText img, 
+.demoText > img,
 .demoText .imgText,
 .demoText pre {
     display: block;
@@ -193,7 +193,8 @@ a:hover {
     text-align: initial;
     margin-top: -1.5rem;
 }
-.demoText code, .demoText pre {
+.demoText code,
+.demoText pre {
     background-color: #292929;
     padding: 0 0.3em 0.1em 0.3em;
     border-radius: 5px;
@@ -225,6 +226,28 @@ a:hover {
     width: 100vw;
     height: 100vh;
     z-index: 10;
+}
+
+.demoLinkBar {
+    display: flex;
+    box-sizing: border-box;
+    width: min(90vw, calc(95vh - 100px), 1000px);
+    margin: auto;
+    padding: 10px;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 20px;
+}
+.demoLinkBar.compact {
+    width: min(90vw, calc(95vh - 100px), 700px);
+}
+.demoLinkBar a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+}
+.demoLinkBar img {
+    height: 1em;
 }
 
 #settingsContainer {
