@@ -1,4 +1,7 @@
 
+@import "lib/katex/katex.min.css";
+@import "lib/bootstrap-icons/font/bootstrap-icons.min.css";
+
 :root {
     --background-color: #151515;
     --background-color-darker: #050505;
