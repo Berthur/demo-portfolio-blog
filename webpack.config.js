@@ -29,6 +29,9 @@ module.exports = {
 
         { from: './node_modules/katex/dist/katex.min.css', to: 'lib/katex/' },
         { from: './node_modules/katex/dist/fonts/', to: 'lib/katex/fonts/' },
+
+        { from: './node_modules/bootstrap-icons/font/fonts/', to: 'lib/bootstrap-icons/font/fonts/'},
+        { from: './node_modules/bootstrap-icons/font/bootstrap-icons.min.css', to: 'lib/bootstrap-icons/font/'},
       ],
     }),
   ],
