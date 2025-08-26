@@ -26,6 +26,18 @@ a:hover {
     text-decoration: underline;
 }
 
+.bi {
+    color: white;
+}
+
+.largeList {
+    font-size: 1.3em;
+    display: inline-flex;
+    flex-flow: column;
+    gap: 0.5em;
+    text-align: initial;
+}
+
 .eq {
     text-align: center;
 }
@@ -251,9 +263,6 @@ a:hover {
 }
 .demoLinkBar img {
     height: 1em;
-}
-.demoLinkBar .bi {
-    color: white;
 }
 
 #settingsContainer {
