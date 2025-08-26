@@ -36,6 +36,7 @@ a:hover {
     flex-flow: column;
     gap: 0.5em;
     text-align: initial;
+    margin: 1em 0px;
 }
 
 .eq {
