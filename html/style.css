@@ -111,20 +111,24 @@ a:hover {
     float: right;
 }
 
-#sidebar {
+#sidebarOverlay {
     display: none;
     position: fixed;
     z-index: 10;
-    width: 80vw;
-    max-width: 20rem;
+    width: 100vw;
     height: calc(100% - 80px);
+}
+#sidebarOverlay.active {
+    display: initial;
+}
+#sidebar {
+    width: 100%;
+    max-width: 20rem;
+    height: 100%;
     font-size: 1.2rem;
     color: var(--text-color);
     background-color: var(--background-color-darker);
     user-select: none;
-}
-#sidebar.active {
-    display: initial;
 }
 #sidebar > a {
     display: block;
