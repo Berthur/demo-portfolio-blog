@@ -3,8 +3,9 @@
 @import "lib/bootstrap-icons/font/bootstrap-icons.min.css";
 
 :root {
+    --text-color: #cccccc;
     --background-color: #151515;
-    --background-color-darker: #050505;
+    --background-color-darker: #0c0c0c;
     --demo-theme-color: #50cdb1;
     --demo-theme-secondary-color: rgba(58, 107, 82, 0.25);
 }
@@ -12,7 +13,7 @@
 body {
     margin: 0;
     background: var(--background-color);
-    color: white;
+    color: var(--text-color);
     font-family: Consolas, monospace;
     font-size: 1rem;
 }
@@ -24,10 +25,6 @@ a {
 a:hover {
     filter: brightness(0.7);
     text-decoration: underline;
-}
-
-.bi {
-    color: white;
 }
 
 .largeList {
@@ -54,8 +51,7 @@ a:hover {
 }
 
 #banner {
-    height: calc(80px - 2*20px);
-    padding: 20px;
+    height: 80px;
     display: flex;
     align-items: center;
     background-color: var(--background-color-darker);
@@ -65,11 +61,18 @@ a:hover {
 #banner > * {
     width: calc(100% / 3);
 }
+#banner > *:nth-child(1) {
+    height: 100%;
+}
 #banner > *:nth-child(2) {
+    height: calc(100% - 2*20px);
+    padding: 20px;
     text-align: center;
     font-size: 1.4em;
 }
 #banner > *:nth-child(3) {
+    height: calc(100% - 2*20px);
+    padding: 20px;
     text-align: right;
 }
 #banner * {
@@ -78,6 +81,20 @@ a:hover {
 #banner a {
     color: inherit;
     text-decoration: inherit;
+}
+#banner .button {
+    display: inline-flex;
+    height: 100%;
+    aspect-ratio: 1;
+    font-size: 2em;
+    cursor: pointer;
+}
+#banner .button > * {
+    margin: auto;
+}
+#banner .button:hover {
+    color: var(--demo-theme-color);
+    background-color: var(--background-color);
 }
 
 #footer {
@@ -94,14 +111,55 @@ a:hover {
     float: right;
 }
 
+#sidebar {
+    display: none;
+    position: fixed;
+    z-index: 10;
+    width: 80vw;
+    max-width: 20rem;
+    height: calc(100% - 80px);
+    font-size: 1.2rem;
+    color: var(--text-color);
+    background-color: var(--background-color-darker);
+    user-select: none;
+}
+#sidebar.active {
+    display: initial;
+}
+#sidebar > a {
+    display: block;
+    padding: 1em 2em;
+    color: inherit;
+    filter: none;
+    cursor: pointer;
+}
+#sidebar > a:hover {
+    text-decoration: none;
+    color: var(--demo-theme-color);
+
+    padding: calc(1em - 1px) 2em;
+    border-style: solid;
+    border-width: 1px 0;
+    border-image: linear-gradient(
+        to right,
+        rgba(0, 0, 0, 0) 0%,
+        var(--demo-theme-color) 50%,
+        rgba(0, 0, 0, 0) 100%
+    ) 1;
+}
+
 .textbox {
     max-width: 1000px;
     margin: auto;
     font-size: 1.1em;
     padding: 20px;
+    color: var(--text-color);
 }
 .textbox.center {
     text-align: center;
+}
+.textbox .bi {
+    color: white;
 }
 
 .indexList {
@@ -184,7 +242,7 @@ a:hover {
     font-size: 1.1em;
     line-height: 1.4em;
     text-align: justify;
-    color: #cccccc;
+    color: var(--text-color);
     margin-bottom: 50px;
 }
 
@@ -264,6 +322,9 @@ a:hover {
 }
 .demoLinkBar img {
     height: 1em;
+}
+.demoLinkBar .bi {
+    color: white;
 }
 
 #settingsContainer {
