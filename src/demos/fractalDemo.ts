@@ -15,7 +15,6 @@ export class FractalDemo extends Demo {
     private readonly outputPass: OutputPass;
     private dragging = false;
     private pinching = false;
-    private tStart = 0;
 
     private zoomTarget = new Vector2(-0.5, 0);
     private zoomRadius = 1.5;
@@ -67,24 +66,17 @@ export class FractalDemo extends Demo {
         this.needsRender = true;
     }
 
-    private updateUniforms(delta: number): void {
-        this.shaderPass.material.uniforms.time.value = performance.now() - this.tStart;
+    private updateUniforms(): void {
         this.shaderPass.material.uniforms.zoomRadius.value = this.zoomRadius;
     }
 
     start(): void {
-        this.tStart = performance.now();
         (() => this.frame())();
     }
 
-    private t0 = 0;
     frame(): void {
-        const t1 = performance.now();
-        const delta = Math.min(t1 - this.t0, 200);
-        this.t0 = t1;
-
         if (this.needsRender) {
-            this.updateUniforms(delta);
+            this.updateUniforms();
             this.composer.render();
             this.needsRender = false;
         }
@@ -218,7 +210,6 @@ const FractalShader = {
     name: 'FractalShader',
     uniforms: {
         viewSize: { value: new Vector2() },
-        time: { value: 0 },
         zoomTarget: { value: new Vector2() },
         zoomRadius: { value: 0 },
     },
@@ -235,7 +226,6 @@ const FractalShader = {
         precision highp float;
 
         uniform vec2 viewSize;
-        uniform float time;
         uniform vec2 zoomTarget;
         uniform float zoomRadius;
 
@@ -243,30 +233,19 @@ const FractalShader = {
             return vec2(c.x * c.x - c.y * c.y, 2.0 * c.x * c.y);
         }
 
-        // HSV to RGB converter by Sam Hocevar:
-        vec3 hsv2rgb(vec3 c) {
-            vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
-            vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
-            return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
-        }
-
-        // Colour scheme by hue rotation:
-        vec3 getFractalColor1(int i) {
-            if (i == MAX_ITERATIONS) return vec3(0.0);
-            float range = 0.6;
-            float hueDir = 1.0;
-            vec3 hsv = vec3(0.2, 0.9, 1.0);
-            //float a = 1.0 - pow(1.0 - float(i) / float(MAX_ITERATIONS), 10.0);
-            //float a = 1.0 - 1.0 / log(float(i) / float(MAX_ITERATIONS));
-            float a = log(float(i + 5)) / log(float(MAX_ITERATIONS + 5));
-            hsv.x += hueDir * a * range + 1.0;
-            hsv.x = mod(hsv.x, 1.0);
-            hsv.z *= a * a;
-            return hsv2rgb(hsv);
+        vec3 mandelbrot(vec2 c) {
+            vec2 z = vec2(0.0);
+            int i = 0;
+            for (; i<MAX_ITERATIONS; ++i) {
+                float r = dot(z, z);
+                if (r <= 4.0) z = squareComplex(z) + c;
+                else break;
+            }
+            return getFractalColor(i);
         }
 
         // Colour scheme by Bernstein polynomials:
-        vec3 getFractalColor2(int i) {
+        vec3 getFractalColor(int i) {
             float a = float(i + 1) / float(MAX_ITERATIONS + 1); // TODO: Make independent of max iterations?
             float b = 1.0 - a;
             return vec3(
@@ -276,27 +255,11 @@ const FractalShader = {
             );
         }
 
-        vec3 mandelbrot(vec2 c) {
-            vec2 z = vec2(0.0);
-            int i = 0;
-
-            for (; i<MAX_ITERATIONS; ++i) {
-                float r = dot(z, z);
-                if (r <= 4.0) {
-                    z = squareComplex(z) + c;
-                } else break;
-            }
-
-            return getFractalColor2(i);
-        }
-
         void main() {
-
-            vec3 color;
-
             float aspect = viewSize.x / viewSize.y;
 
-            for (int i=0; i<AA; ++i)
+            vec3 color;
+            for (int i=0; i<AA; ++i) {
                 for (int j=0; j<AA; ++j) {
 
                     vec2 virtualCoord = (float(AA) * vec2(gl_FragCoord) + vec2(i, j)) / (float(AA) * viewSize);
@@ -306,40 +269,8 @@ const FractalShader = {
                     color += mandelbrot(c);
 
                 }
-            
+            }
             color /= float(AA * AA);
-
-            //vec2 zoomTarget = vec2(0.743643887037151, 0.131825904205330);
-
-            // vec2 screenCoord = vec2(gl_FragCoord) / viewSize;
-
-            // vec2 c = mix(boundMin, boundMax, screenCoord);
-
-            // vec2 aaOffset = vec2(1.0 / 4.0) / viewSize;
-
-            // vec2 z = vec2(0.0);
-            // int i = 0;
-
-            // for (; i<MAX_ITERATIONS; ++i) {
-            //     float r = dot(z, z);
-            //     if (r <= 4.0) {
-            //         z = squareComplex(z) + c; // TODO: Use in/out parameter?
-            //     } else break;
-            // }
-
-            //float linearValue = 1.0 - float(i) / float(MAX_ITERATIONS);
-
-            // vec3 color = vec3(
-            //     0.0,
-            //     0.7 * pow(linearValue, 20.0),
-            //     0.2 * linearValue
-            // );
-
-            //vec3 color = getFractalColor2(i);
-
-            // vec3 color = vec3(0.0, 0.0, 0.0);
-            // color = smoothstep(color, vec3(1.0, 0.0, 0.0), vec3(pow(linearValue, 2.0)));
-            // color = smoothstep(color, vec3(1.0, 1.0, 0.0), vec3(pow(linearValue, 15.0)));
 
             gl_FragColor = vec4(color, 1.0);
         }
