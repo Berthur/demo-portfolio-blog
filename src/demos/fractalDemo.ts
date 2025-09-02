@@ -229,6 +229,17 @@ const FractalShader = {
         uniform vec2 zoomTarget;
         uniform float zoomRadius;
 
+        // Colour scheme by Bernstein polynomials:
+        vec3 getFractalColor(int i) {
+            float a = float(i + 1) / float(MAX_ITERATIONS + 1); // TODO: Make independent of max iterations?
+            float b = 1.0 - a;
+            return vec3(
+                3.0 *   b * a * a * a,
+                20.0 *  b * b * a * a,
+                8.5 *   b * b * b * a
+            );
+        }
+
         vec2 squareComplex(vec2 c) {
             return vec2(c.x * c.x - c.y * c.y, 2.0 * c.x * c.y);
         }
@@ -242,17 +253,6 @@ const FractalShader = {
                 else break;
             }
             return getFractalColor(i);
-        }
-
-        // Colour scheme by Bernstein polynomials:
-        vec3 getFractalColor(int i) {
-            float a = float(i + 1) / float(MAX_ITERATIONS + 1); // TODO: Make independent of max iterations?
-            float b = 1.0 - a;
-            return vec3(
-                3.0 *   b * a * a * a,
-                20.0 *  b * b * a * a,
-                8.5 *   b * b * b * a
-            );
         }
 
         void main() {
