@@ -10,6 +10,10 @@ export class LatexElement extends HTMLElement {
         //displayMode: true,
         macros: {
             '\\R': '\\mathbb{R}',
+            '\\Z': '\\mathbb{Z}',
+            '\\N': '\\mathbb{N}',
+            '\\Q': '\\mathbb{Q}',
+            '\\C': '\\mathbb{C}',
             '\\norm': '\\|#1\\|',
         },
     };

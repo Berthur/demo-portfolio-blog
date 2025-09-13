@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Jon Galan | Dev Blog: Fractal</title>
+        <link rel="icon" type="image/png" href="../resources/favicon.png" />
+        <link rel="stylesheet" href="../style.css">
+    </head>
+    <body>
+        <div id="pageContainer">
+            <div id="banner">
+                <div><div id="sidebarButton" class="button"><span class="bi bi-list"></span></div></div>
+                <div><a href="../">Jon Galán</a></div>
+                <div></div>
+            </div>
+
+            <div id="sidebarOverlay">
+                <div id="sidebar">
+                    <a href="../">Home</a>
+                    <a href="../demos">Portfolio</a>
+                    <a href="../blog">Dev Blog</a>
+                    <a href="../contact.html">Contact</a>
+                </div>
+            </div>
+
+            <div class="demoText">
+                <div class="blogLinks"></div>
+
+                <h1>Interactive Fractal</h1>
+
+                <p>For this demo, we want to make a <a href="https://en.wikipedia.org/wiki/Fractal" target="_blank">fractal</a> rendering that is navigable in real-time, with intuitive panning and zooming as if it were a large digital image. Fractal renderings that keep zooming into a predefined point are common, and offline rendering allows for fancier visual effects and much deeper zooming. However, letting the user explore it freely, in real-time, provides a different educational experience into fractals and the visual beauty of mathematics. It is also an excellent exercise in shader programming.</p>
+
+                <div id="demoContainer" class="compact"></div>
+                <div class="demoLinkBar compact">
+                    <a href="https://github.com/Berthur/demo-portfolio-blog/blob/main/src/demos/fractalDemo.ts">
+                        <span class="bi bi-github"></span> Source code
+                    </a>
+                </div>
+
+                <h2>The Mandelbrot Fractal</h2>
+
+                <p>One of the most famous fractals is the boundary of the <a href="https://en.wikipedia.org/wiki/Mandelbrot_set" target="_blank">Mandelbrot set</a>, which is defined by a surprisingly simple function:</p>
+
+                <p class="eq"><span-latex>
+                    f_c(z) = z^2 + c
+                </span-latex></p>
+
+                <p>A <a href="https://en.wikipedia.org/wiki/Complex_number" target="_blank">complex number</a> <span-latex>c \in \C</span-latex> belongs to the Mandelbrot set if and only if the function above, repeatedly applied starting from zero, does not diverge. In other words: <span-latex>f_c(f_c( \dots f_c(0) \dots ))</span-latex>, applied infinitely.</p>
+
+                <p>Conveniently, the complex plane is two-dimensional, just like a computer screen. So if we plot the complex plane onto the screen, such that each pixel is given one colour if its complex coordinate belongs to the Mandelbrot set and another colour if it doesn't, we will get the simplest visualisation of the fractal curve. Doing this will already reveal the famous shape:</p>
+
+                <img width="500px" src="../resources/blog/fractal_binary_10000_1xAA.png" alt="Mandelbrot Set">
+                <p class="imgText"><em>Fig. 1:</em> The mandelbrot set in its simplest visualization: Computing whether the complex number corresponding to the coordinate of each pixel centre belongs to the set or not. Turquoise pixels belong to the set.</p>
+
+                <!-- TODO: Colouring based on number of iterations. What is a zoom? -->
+
+
+                <h2>Implementation in WebGL</h2>
+
+                <p>To be continued...</p>
+
+                <div class="blogLinks"></div>
+            </div>
+
+            <div id="footer"><div></div><div>Copyright Jon Galán 2025</div></div>
+        </div>
+
+        <script type="module" src="../scripts.js"></script>
+        <script type="module" src="../main-bundle.js"></script>
+        <script type="module">
+            const app = new App();
+            app.populateBlogLinks();
+
+            const container = document.getElementById('demoContainer');
+            const demo = new app.demos.fractal(container);
+            demo.start();
+        </script>
+    </body>
+</html>

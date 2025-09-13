@@ -2,9 +2,14 @@
     "blog": {
         "entries": [
             {
-                "title": "Interactive Particle System",
+                "title": "Particle System",
                 "file": "particles.html",
                 "date": "2025-08-14"
+            },
+            {
+                "title": "Interactive Fractal",
+                "file": "fractal.html",
+                "date": "2025-09-13"
             }
         ]
     }
