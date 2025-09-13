@@ -53,7 +53,12 @@
                 <img width="500px" src="../resources/blog/fractal_binary_10000_1xAA.png" alt="Mandelbrot Set">
                 <p class="imgText"><em>Fig. 1:</em> The mandelbrot set in its simplest visualization: Computing whether the complex number corresponding to the coordinate of each pixel centre belongs to the set or not. Turquoise pixels belong to the set.</p>
 
-                <!-- TODO: Colouring based on number of iterations. What is a zoom? -->
+                <p>However, there is more to the Mandelbrot fractal than the boundary. A common visualization algorithm takes into account also the speed of divergence of each point, and visualizes it in different colours. In other words, how many times the mapping function has to be applied on a point before exiting a certain radius. Such colouring reveals some depth in the fractal:</p>
+
+                <img width="500px" src="../resources/blog/fractal_zoomed_tentacle.jpg" alt="Colouring based on rate of divergence">
+                <p class="imgText"><em>Fig. 2:</em> Colouring based on rate of divergence. This picture is of a smaller part of the fractal, after zooming in a little.</p>
+
+                <p>But the real marvel of fractals is the zoom: By mapping the screen to a smaller portion of the complex plane, we achieve a zooming effect that reveals new patterns of the fractal. Mathematically, one can continue zooming indefinitely, and there are renderings that reach extreme depths and continue to reveal new and fantastic shapes and patterns. However, the deeper the zoom, the more computationally expensive it becomes to render the fractal, both because higher precision is needed in the number representations used, and because more iterations of the mapping function are needed as points diverge slower.</p>
 
 
                 <h2>Implementation in WebGL</h2>
