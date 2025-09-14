@@ -207,9 +207,13 @@ export class FractalDemo extends Demo {
             const uniforms = this.shaderPass.material.uniforms;
             const defines = this.shaderPass.material.defines;
 
+            this.zoomTarget.set(0, 0);
+            this.zoomRadius = 1.5;
+
             switch (v) {
                 case 'Mandelbrot':
                     defines.FRACTAL_TYPE = FractalType.Mandelbrot;
+                    this.zoomTarget.set(-0.5, 0);
                     break;
                 case 'Julia (c = -0.4 + 0.6i)':
                     defines.FRACTAL_TYPE = FractalType.Julia;
