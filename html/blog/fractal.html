@@ -63,7 +63,36 @@
 
                 <h2>Implementation in WebGL</h2>
 
-                <p>To be continued...</p>
+                <p>When implementing fractal visualization on a computer in practice, we obviously can't iterate our mapping functon an infinite number of times to see if it diverges. Instead, we simply pick a large enough threshold value that defines the maxumum number of iterations we will perform for each point. If after all those iterations the value still does not appear to diverge, we assume that it never will and consider it part of the set. The next step would be to define how to detect divergence. For the Mandelbrot set, it can be shown that for any point <span-latex>z \in \C</span-latex>, if <span-latex>\norm{z} > 2</span-latex> then the mapping will diverge. This means that if we ever reach a mapping <span-latex>z' = f_c(f_c( \dots f_c(0) \dots ))</span-latex> such that <span-latex>\norm{z'} > 2</span-latex> then we can stop, knowing that <span-latex>c</span-latex> is not in the set.</p>
+
+                <p>To visualize the fractal, we need to perform this computation for each pixel. Since each pixel output does not depend on others, the computation can be done completely in parallel: A perfect problem for the GPU. In WebGL, we can simply create a screen-size quad and let the fragment shader perform the fractal computations. With a single render pass, we can both compute and visualize. In WebGL terms, it's very straight forward and requires minimal boilerplate, letting us focus our attention on the shader itself.</p>
+
+                <p>The GLSL code might look something like this:</p>
+
+                <pre>
+vec2 squareComplex(vec2 c) {
+    return vec2(c.x * c.x - c.y * c.y, 2.0 * c.x * c.y);
+}
+
+int mandelbrot(vec2 c) {
+    vec2 z = vec2(0.0);
+    int i = 0;
+    for (; i&lt;MAX_ITERATIONS; ++i) {
+        if (dot(z, z) &gt;= 4.0) break;
+        z = squareComplex(z) + c;
+    }
+    return i;
+}</pre>
+
+                <p>(Blog in progress)</p>
+
+                <h2>Antialiasing</h2>
+
+                <p>(Blog in progress)</p>
+
+                <h2>Julia Fractal</h2>
+
+                <p>(Blog in progress)</p>
 
                 <div class="blogLinks"></div>
             </div>
