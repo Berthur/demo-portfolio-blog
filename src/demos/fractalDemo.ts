@@ -200,7 +200,8 @@ export class FractalDemo extends Demo {
         const fractalType = new DropdownSetting('Fractal', 0, [
             'Mandelbrot',
             'Julia (c = -0.4 + 0.6i)',
-            'Julia (c = -0.8 + 0.156i)'
+            'Julia (c = -0.8 + 0.156i)',
+            'Julia (c = 0.35 + 0.35i)',
         ]);
         settings.add(fractalType);
         fractalType.subscribe(v => {
@@ -222,6 +223,10 @@ export class FractalDemo extends Demo {
                 case 'Julia (c = -0.8 + 0.156i)':
                     defines.FRACTAL_TYPE = FractalType.Julia;
                     uniforms.juliaC.value.set(-0.8, 0.156);
+                    break;
+                case 'Julia (c = 0.35 + 0.35i)':
+                    defines.FRACTAL_TYPE = FractalType.Julia;
+                    uniforms.juliaC.value.set(0.35, 0.35);
                     break;
                 default:
                     defines.FRACTAL_TYPE = FractalType.Mandelbrot;
