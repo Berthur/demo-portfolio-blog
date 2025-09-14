@@ -4,7 +4,9 @@ import { glsl } from "../utils";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass";
-import { ButtonSetting, NumberSetting, Settings } from "../settings";
+import { ButtonSetting, DropdownSetting, NumberSetting, Settings } from "../settings";
+
+enum FractalType { Mandelbrot, Julia }
 
 export class FractalDemo extends Demo {
     private readonly dimensions = new Vector2();
@@ -195,6 +197,36 @@ export class FractalDemo extends Demo {
             this.needsRender = true;
         });
 
+        const fractalType = new DropdownSetting('Fractal', 0, [
+            'Mandelbrot',
+            'Julia (c = -0.4 + 0.6i)',
+            'Julia (c = -0.8 + 0.156i)'
+        ]);
+        settings.add(fractalType);
+        fractalType.subscribe(v => {
+            const uniforms = this.shaderPass.material.uniforms;
+            const defines = this.shaderPass.material.defines;
+
+            switch (v) {
+                case 'Mandelbrot':
+                    defines.FRACTAL_TYPE = FractalType.Mandelbrot;
+                    break;
+                case 'Julia (c = -0.4 + 0.6i)':
+                    defines.FRACTAL_TYPE = FractalType.Julia;
+                    uniforms.juliaC.value.set(-0.4, 0.6);
+                    break;
+                case 'Julia (c = -0.8 + 0.156i)':
+                    defines.FRACTAL_TYPE = FractalType.Julia;
+                    uniforms.juliaC.value.set(-0.8, 0.156);
+                    break;
+                default:
+                    defines.FRACTAL_TYPE = FractalType.Mandelbrot;
+            }
+
+            this.shaderPass.material.needsUpdate = true;
+            this.needsRender = true;
+        });
+
         const expandButton = new ButtonSetting('Expand window', 'Minimize window', false);
         settings.add(expandButton);
         expandButton.subscribe(v => {
@@ -212,8 +244,10 @@ const FractalShader = {
         viewSize: { value: new Vector2() },
         zoomTarget: { value: new Vector2() },
         zoomRadius: { value: 0 },
+        juliaC: { value: new Vector2() },
     },
     defines: {
+        FRACTAL_TYPE: 0,
         MAX_ITERATIONS: 1000,
         AA: 2,
     },
@@ -228,6 +262,7 @@ const FractalShader = {
         uniform vec2 viewSize;
         uniform vec2 zoomTarget;
         uniform float zoomRadius;
+        uniform vec2 juliaC;
 
         // Colour scheme by Bernstein polynomials:
         vec3 getFractalColor(int i) {
@@ -244,21 +279,25 @@ const FractalShader = {
             return vec2(c.x * c.x - c.y * c.y, 2.0 * c.x * c.y);
         }
 
-        vec3 mandelbrot(vec2 c) {
-            vec2 z = vec2(0.0);
+        vec3 julia(vec2 z, vec2 c, float R) {
+            float R2 = R * R;
             int i = 0;
             for (; i<MAX_ITERATIONS; ++i) {
                 float r = dot(z, z);
-                if (r <= 4.0) z = squareComplex(z) + c;
+                if (r <= R2) z = squareComplex(z) + c;
                 else break;
             }
             return getFractalColor(i);
         }
 
+        vec3 mandelbrot(vec2 c) {
+            return julia(vec2(0.0), c, 2.0);
+        }
+
         void main() {
             float aspect = viewSize.x / viewSize.y;
 
-            vec3 color;
+            vec3 color = vec3(0.0);
             for (int i=0; i<AA; ++i) {
                 for (int j=0; j<AA; ++j) {
 
@@ -266,8 +305,12 @@ const FractalShader = {
                     virtualCoord -= 0.5;
                     virtualCoord *= 2.0;
                     vec2 c = zoomTarget + zoomRadius * virtualCoord * vec2(aspect, 1.0);
-                    color += mandelbrot(c);
 
+                    #if FRACTAL_TYPE == 0
+                        color += mandelbrot(c);
+                    #elif FRACTAL_TYPE == 1
+                        color += julia(c, juliaC, 2.0);
+                    #endif
                 }
             }
             color /= float(AA * AA);
