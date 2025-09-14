@@ -129,6 +129,36 @@ export class NumberSetting extends Setting<number> {
     }
 }
 
+export class DropdownSetting extends Setting<string> {
+    element: HTMLDivElement;
+
+    constructor(label: string, defaultIndex: number, options: string[]) {
+        super(options[defaultIndex]);
+
+        const leftCol = document.createElement('div');
+        const rightCol = document.createElement('div');
+        this.element.append(leftCol, rightCol);
+
+        const dropdownElem = document.createElement('select');
+        leftCol.append(dropdownElem);
+
+        for (let i=0; i<options.length; ++i) {
+            const option = options[i];
+            const elem = document.createElement('option');
+            elem.value = option;
+            elem.innerText = option;
+            if (i === defaultIndex) elem.setAttribute('selected', '');
+            dropdownElem.append(elem);
+        }
+
+        rightCol.append(this.createLabel(label));
+
+        dropdownElem.addEventListener('change', e => {
+            this.value = dropdownElem.value;
+        });
+    }
+}
+
 export class BooleanSetting extends Setting<boolean> {
     element: HTMLDivElement;
 

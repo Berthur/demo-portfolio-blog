@@ -429,6 +429,20 @@ a:hover {
     border-radius: 2px;
 }
 
+.demoSetting select {
+    width: calc(100% - 3px);
+    height: 20px;
+    margin: 2px;
+    padding-right: 5px;
+    color: var(--demo-theme-color);
+    background-color: var(--demo-theme-secondary-color);
+    border: none;
+}
+.demoSetting select option {
+    height: 20px;
+    background-color: black;
+}
+
 .demoSetting button {
     margin: 3px;
     font-size: 1em;
