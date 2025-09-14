@@ -218,15 +218,15 @@ export class FractalDemo extends Demo {
                     break;
                 case 'Julia (c = -0.4 + 0.6i)':
                     defines.FRACTAL_TYPE = FractalType.Julia;
-                    uniforms.juliaC.value.set(-0.4, 0.6);
+                    uniforms.constant.value.set(-0.4, 0.6);
                     break;
                 case 'Julia (c = -0.8 + 0.156i)':
                     defines.FRACTAL_TYPE = FractalType.Julia;
-                    uniforms.juliaC.value.set(-0.8, 0.156);
+                    uniforms.constant.value.set(-0.8, 0.156);
                     break;
                 case 'Julia (c = 0.35 + 0.35i)':
                     defines.FRACTAL_TYPE = FractalType.Julia;
-                    uniforms.juliaC.value.set(0.35, 0.35);
+                    uniforms.constant.value.set(0.35, 0.35);
                     break;
                 default:
                     defines.FRACTAL_TYPE = FractalType.Mandelbrot;
@@ -253,7 +253,7 @@ const FractalShader = {
         viewSize: { value: new Vector2() },
         zoomTarget: { value: new Vector2() },
         zoomRadius: { value: 0 },
-        juliaC: { value: new Vector2() },
+        constant: { value: new Vector2() },
     },
     defines: {
         FRACTAL_TYPE: 0,
@@ -271,11 +271,11 @@ const FractalShader = {
         uniform vec2 viewSize;
         uniform vec2 zoomTarget;
         uniform float zoomRadius;
-        uniform vec2 juliaC;
+        uniform vec2 constant;
 
         // Colour scheme by Bernstein polynomials:
         vec3 getFractalColor(int i) {
-            float a = float(i + 1) / float(MAX_ITERATIONS + 1); // TODO: Make independent of max iterations?
+            float a = float(i + 1) / float(MAX_ITERATIONS + 1);
             float b = 1.0 - a;
             return vec3(
                 3.0 *   b * a * a * a,
@@ -288,25 +288,24 @@ const FractalShader = {
             return vec2(c.x * c.x - c.y * c.y, 2.0 * c.x * c.y);
         }
 
-        vec3 julia(vec2 z, vec2 c, float R) {
+        int julia(vec2 z, vec2 c, float R) {
             float R2 = R * R;
             int i = 0;
             for (; i<MAX_ITERATIONS; ++i) {
-                float r = dot(z, z);
-                if (r <= R2) z = squareComplex(z) + c;
-                else break;
+                if (dot(z, z) > R2) break;
+                z = squareComplex(z) + c;
             }
-            return getFractalColor(i);
+            return i;
         }
 
-        vec3 mandelbrot(vec2 c) {
+        int mandelbrot(vec2 c) {
             return julia(vec2(0.0), c, 2.0);
         }
 
         void main() {
             float aspect = viewSize.x / viewSize.y;
-
             vec3 color = vec3(0.0);
+
             for (int i=0; i<AA; ++i) {
                 for (int j=0; j<AA; ++j) {
 
@@ -316,14 +315,14 @@ const FractalShader = {
                     vec2 c = zoomTarget + zoomRadius * virtualCoord * vec2(aspect, 1.0);
 
                     #if FRACTAL_TYPE == 0
-                        color += mandelbrot(c);
+                        color += getFractalColor(mandelbrot(c));
                     #elif FRACTAL_TYPE == 1
-                        color += julia(c, juliaC, 2.0);
+                        color += getFractalColor(julia(c, constant, 2.0));
                     #endif
                 }
             }
-            color /= float(AA * AA);
 
+            color /= float(AA * AA);
             gl_FragColor = vec4(color, 1.0);
         }
     `,
