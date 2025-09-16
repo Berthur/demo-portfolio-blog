@@ -20,8 +20,8 @@ export class GameOfLifeDemo extends Demo {
     private texture1: DataTexture;
     private texture2: DataTexture;
 
-    private n = 100;
-    private m = 100;
+    private n = 250;
+    private m = 250;
 
     constructor(container: HTMLElement) {
         super(container);
