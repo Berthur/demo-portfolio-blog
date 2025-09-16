@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Jon Galan | Game of Life</title>
+        <link rel="icon" type="image/png" href="../resources/favicon.png" />
+        <link rel="stylesheet" href="../style.css">
+    </head>
+    <body>
+        <div id="pageContainer">
+            <div id="banner">
+                <div><div id="sidebarButton" class="button"><span class="bi bi-list"></span></div></div>
+                <div><a href="../">Jon Galán</a></div>
+                <div></div>
+            </div>
+
+            <div id="sidebarOverlay">
+                <div id="sidebar">
+                    <a href="../">Home</a>
+                    <a href="../demos">Portfolio</a>
+                    <a href="../blog">Dev Blog</a>
+                    <a href="../contact.html">Contact</a>
+                </div>
+            </div>
+
+            <div id="demoContainer"></div>
+
+            <div class="demoLinkBar">
+                <a href="https://github.com/Berthur/demo-portfolio-blog/blob/main/src/demos/gameOfLife.ts">
+                    <span class="bi bi-github"></span> Source code
+                </a>
+            </div>
+
+            <div class="demoText">
+                <h1>Conway's Game of Life</h1>
+            </div>
+
+            <div id="footer"><div></div><div>Copyright Jon Galán 2025</div></div>
+        </div>
+
+        <script type="module" src="../scripts.js"></script>
+        <script type="module" src="../main-bundle.js"></script>
+        <script type="module">
+            const app = new App();
+            const container = document.getElementById('demoContainer');
+            const demo = new app.demos.gameOfLife(container);
+            demo.start();
+        </script>
+    </body>
+</html>

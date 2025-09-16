@@ -1,6 +1,7 @@
 import { FractalDemo } from "./demos/fractalDemo";
 import { ParticlesDemo } from "./demos/particlesDemo";
 import { TrafficDemo } from "./demos/trafficDemo";
+import { GameOfLifeDemo } from "./demos/gameOfLife";
 import * as siteJSON from "../html/site.json";
 
 interface BlogEntry {
@@ -18,6 +19,7 @@ export class App {
         particles: ParticlesDemo,
         fractal: FractalDemo,
         traffic: TrafficDemo,
+        gameOfLife: GameOfLifeDemo,
     });
 
     constructor() {
