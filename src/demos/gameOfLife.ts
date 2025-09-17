@@ -3,7 +3,7 @@ import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import { CopyShader } from "three/examples/jsm/shaders/CopyShader";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { Demo } from "./demo";
-import { Settings } from "../settings";
+import { ButtonSetting, NumberSetting, Settings } from "../settings";
 import { glsl } from "../utils";
 
 export class GameOfLifeDemo extends Demo {
@@ -20,8 +20,8 @@ export class GameOfLifeDemo extends Demo {
     private texture1: DataTexture;
     private texture2: DataTexture;
 
-    private n = 250;
-    private m = 250;
+    private n = 256;
+    private m = 256;
 
     constructor(container: HTMLElement) {
         super(container);
@@ -102,9 +102,22 @@ export class GameOfLifeDemo extends Demo {
     }
 
     private createSettings(): void {
-        // TODO
         const settings = new Settings();
         this.container.append(settings.element);
+
+        const countsFormatter = (v: number) => {
+            const x = 2 ** v;
+            return `${ x }x${ x }`;
+        };
+
+        const resolutionSetting = new NumberSetting('Grid size', 8, 5, 13, 1, countsFormatter);
+        settings.add(resolutionSetting);
+        resolutionSetting.subscribe(v => {
+            const x = 2 ** v;
+            this.n = x;
+            this.m = x;
+            this.restart();
+        });
     }
 }
 
