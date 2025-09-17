@@ -118,6 +118,13 @@ export class GameOfLifeDemo extends Demo {
             this.m = x;
             this.restart();
         });
+
+        const restartButton = new ButtonSetting('Restart', 'Restart', false);
+        settings.add(restartButton);
+        restartButton.subscribe(v => {
+            this.restart();
+            settings.setDefaultExpansion();
+        });
     }
 }
 
