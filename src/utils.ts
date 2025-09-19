@@ -34,6 +34,7 @@ export class FrameTimer {
     constructor(private callback: (delta: number) => void, public delay = 0) { }
 
     start(): void {
+        if (this.running) return;
         this.running = true;
         this.t0 = performance.now();
         requestAnimationFrame(() => this.frame());

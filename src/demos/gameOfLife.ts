@@ -131,6 +131,7 @@ export class GameOfLifeDemo extends Demo {
         speedSetting.subscribe(v => {
             const speed = updateSpeeds[v];
             this.timer.delay = 1000 / speed;
+            this.timer.start(); // Start timer again if it was paused
         });
 
         const playerSetting = new PlayerSetting('Pause/Skip');

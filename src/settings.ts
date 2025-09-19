@@ -54,6 +54,7 @@ export class Settings {
 export abstract class Setting<T> {
     private val: T;
     private subscriptions: Set<(value: T) => void> = new Set();
+    protected allowRepeats = false;
     element: HTMLElement;
 
     constructor(protected defaultValue: T) {
@@ -68,7 +69,7 @@ export abstract class Setting<T> {
     }
 
     set value(v: T) {
-        if (this.val === v) return;
+        if (this.val === v && !this.allowRepeats) return;
         this.val = v;
         for (const s of this.subscriptions)
             s(this.val);
@@ -263,6 +264,8 @@ export class ColorSchemeSetting extends Setting<string> {
 export enum PlayerState { Pause, Play, Forward };
 export class PlayerSetting extends Setting<PlayerState> {
     element: HTMLDivElement;
+
+    override allowRepeats = true;
 
     constructor(label: string, defaultValue: PlayerState = PlayerState.Play) {
         super(defaultValue);
