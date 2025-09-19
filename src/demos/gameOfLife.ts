@@ -28,6 +28,7 @@ export class GameOfLifeDemo extends Demo {
         super(container);
         this.canvas = document.createElement('canvas');
         container.prepend(this.canvas);
+        this.timer = new FrameTimer(() => this.renderFrame());
 
         this.canvas.addEventListener('pointermove', e => {
             this.mousePos.set(e.offsetX, e.offsetY).multiplyScalar(devicePixelRatio);
@@ -41,14 +42,11 @@ export class GameOfLifeDemo extends Demo {
 
         this.computePass = new ShaderPass(ComputeShader, 'prevState');
         const copyPass = new ShaderPass(CopyShader);
-        copyPass.renderToScreen = true;
         this.composer = new EffectComposer(this.renderer);
         this.composer.addPass(this.computePass);
         this.composer.addPass(copyPass);
 
         this.createSettings();
-
-        this.timer = new FrameTimer(() => this.renderFrame());
     }
 
     onResize(width: number, height: number) {
@@ -93,7 +91,10 @@ export class GameOfLifeDemo extends Demo {
     }
 
     fastForward(iterations: number): void {
-        for (let i=0; i<iterations; ++i) this.renderFrame();
+        this.composer.renderToScreen = false;
+        for (let i=0; i<iterations - 1; ++i) this.renderFrame();
+        this.composer.renderToScreen = true;
+        this.renderFrame();
     }
 
     restart(): void {
