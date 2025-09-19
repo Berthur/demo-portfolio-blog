@@ -259,3 +259,43 @@ export class ColorSchemeSetting extends Setting<string> {
         rightCol.append(this.createLabel(label));
     }
 }
+
+export enum PlayerState { Pause, Play, Forward };
+export class PlayerSetting extends Setting<PlayerState> {
+    element: HTMLDivElement;
+
+    constructor(label: string, defaultValue: PlayerState = PlayerState.Play) {
+        super(defaultValue);
+
+        const leftCol = document.createElement('div');
+        const rightCol = document.createElement('div');
+        this.element.append(leftCol, rightCol);
+
+        const buttonContainer = document.createElement('div');
+        buttonContainer.classList.add('buttonContainer');
+
+        const pauseButton = document.createElement('button');
+        pauseButton.classList.add('bi', 'bi-pause-fill');
+        const playButton = document.createElement('button');
+        playButton.classList.add('bi', 'bi-play-fill');
+        const forwardButton = document.createElement('button');
+        forwardButton.classList.add('bi', 'bi-skip-forward-fill');
+        buttonContainer.append(pauseButton, playButton, forwardButton);
+
+        pauseButton.addEventListener('click', e => {
+            this.value = PlayerState.Pause;
+            pauseButton.blur();
+        });
+        playButton.addEventListener('click', e => {
+            this.value = PlayerState.Play;
+            playButton.blur();
+        });
+        forwardButton.addEventListener('click', e => {
+            this.value = PlayerState.Forward;
+            forwardButton.blur();
+        });
+
+        leftCol.append(buttonContainer);
+        rightCol.append(this.createLabel(label));
+    }
+}

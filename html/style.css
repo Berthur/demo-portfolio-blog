@@ -462,6 +462,15 @@ a:hover {
     cursor: pointer;
 }
 
+.demoSetting .buttonContainer {
+    display: flex;
+    gap: 5px;
+}
+.demoSetting .buttonContainer > button {
+    height: 22px;
+    flex: 1;
+}
+
 
 
 
