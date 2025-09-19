@@ -4,11 +4,12 @@ import { CopyShader } from "three/examples/jsm/shaders/CopyShader";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { Demo } from "./demo";
 import { ButtonSetting, NumberSetting, Settings } from "../settings";
-import { glsl } from "../utils";
+import { FrameTimer, glsl } from "../utils";
 
 export class GameOfLifeDemo extends Demo {
     private readonly dimensions = new Vector2(1, 1);
-    private mousePos = new Vector2();
+    private readonly mousePos = new Vector2();
+    private readonly timer: FrameTimer;
 
     private readonly canvas: HTMLCanvasElement;
     private readonly renderer: WebGLRenderer;
@@ -46,6 +47,8 @@ export class GameOfLifeDemo extends Demo {
         this.composer.addPass(copyPass);
 
         this.createSettings();
+
+        this.timer = new FrameTimer(() => this.renderFrame());
     }
 
     onResize(width: number, height: number) {
@@ -76,10 +79,10 @@ export class GameOfLifeDemo extends Demo {
     }
 
     start(): void {
-        (() => this.frame())();
+        this.timer.start();
     }
 
-    frame(): void {
+    renderFrame(): void {
         const tmp = this.currStateTarget;
         this.currStateTarget = this.nextStateTarget;
         this.nextStateTarget = tmp;
@@ -87,8 +90,6 @@ export class GameOfLifeDemo extends Demo {
         this.composer.readBuffer = this.currStateTarget;
         this.composer.writeBuffer = this.nextStateTarget;
         this.composer.render();
-        
-        requestAnimationFrame(() => { this.frame() });
     }
 
     restart(): void {
@@ -117,6 +118,19 @@ export class GameOfLifeDemo extends Demo {
             this.n = x;
             this.m = x;
             this.restart();
+        });
+
+        const updateSpeeds = [1, 2, 5, 10, 20, Infinity];
+        const updateSpeedFormatter = (v: number) => {
+            const speed = updateSpeeds[v];
+            if (speed === Infinity) return 'Framerate';
+            return `${ speed } Hz`;
+        }
+        const speedSetting = new NumberSetting('Update speed', 5, 0, 5, 1, updateSpeedFormatter);
+        settings.add(speedSetting);
+        speedSetting.subscribe(v => {
+            const speed = updateSpeeds[v];
+            this.timer.delay = 1000 / speed;
         });
 
         const restartButton = new ButtonSetting('Restart', 'Restart', false);
