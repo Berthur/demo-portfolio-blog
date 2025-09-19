@@ -100,6 +100,7 @@ export class GameOfLifeDemo extends Demo {
         this.currStateTarget = new WebGLRenderTarget(this.n, this.m);
         this.nextStateTarget = new WebGLRenderTarget(this.n, this.m);
         this.initializeTextures();
+        this.start();
     }
 
     private createSettings(): void {
