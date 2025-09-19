@@ -3,7 +3,7 @@ import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import { CopyShader } from "three/examples/jsm/shaders/CopyShader";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { Demo } from "./demo";
-import { ButtonSetting, NumberSetting, Settings } from "../settings";
+import { ButtonSetting, NumberSetting, PlayerSetting, PlayerState, Settings } from "../settings";
 import { FrameTimer, glsl } from "../utils";
 
 export class GameOfLifeDemo extends Demo {
@@ -131,6 +131,22 @@ export class GameOfLifeDemo extends Demo {
         speedSetting.subscribe(v => {
             const speed = updateSpeeds[v];
             this.timer.delay = 1000 / speed;
+        });
+
+        const playerSetting = new PlayerSetting('Pause/Skip');
+        settings.add(playerSetting);
+        playerSetting.subscribe(v => {
+            switch (v) {
+                case PlayerState.Pause:
+                    this.timer.stop();
+                    break;
+                case PlayerState.Play:
+                    this.timer.start();
+                    break;
+                case PlayerState.Forward:
+                    // TODO
+                    break;
+            }
         });
 
         const restartButton = new ButtonSetting('Restart', 'Restart', false);
