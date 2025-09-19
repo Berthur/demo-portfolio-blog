@@ -92,6 +92,10 @@ export class GameOfLifeDemo extends Demo {
         this.composer.render();
     }
 
+    fastForward(iterations: number): void {
+        for (let i=0; i<iterations; ++i) this.renderFrame();
+    }
+
     restart(): void {
         this.texture1.dispose();
         this.texture2.dispose();
@@ -146,7 +150,7 @@ export class GameOfLifeDemo extends Demo {
                     this.timer.start();
                     break;
                 case PlayerState.Forward:
-                    // TODO
+                    this.fastForward(50);
                     break;
             }
         });
