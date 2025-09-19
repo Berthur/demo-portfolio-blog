@@ -26,3 +26,30 @@ export class PseudoPointsGeometry extends BufferGeometry {
     override computeBoundingBox(): void { /* Do nothing */ }
     override computeBoundingSphere(): void { /* Do nothing */ }
 }
+
+export class FrameTimer {
+    private t0: number;
+    private running = false;
+
+    constructor(private callback: (delta: number) => void, public delay = 0) { }
+
+    start(): void {
+        this.running = true;
+        this.t0 = performance.now();
+        requestAnimationFrame(() => this.frame());
+    }
+
+    stop(): void {
+        this.running = false;
+    }
+
+    private frame(): void {
+        if (!this.running) return;
+        requestAnimationFrame(() => this.frame());
+        const t1 = performance.now();
+        const delta = t1 - this.t0;
+        if (delta < this.delay) return;
+        this.callback(delta);
+        this.t0 = t1;
+    }
+}
