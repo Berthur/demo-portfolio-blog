@@ -34,6 +34,22 @@
 
             <div class="demoText">
                 <h1>Conway's Game of Life</h1>
+                <p>A fast implementation of J. H. Conway's famous <a href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life" target="_blank">Game of Life</a>, running in WebGL. The zero-player game is a <a href="https://en.wikipedia.org/wiki/Cellular_automaton" target="_blank">cellular automaton</a>, inspired by biological cells multiplying and dying in a medium. It runs in a discrete grid, where each grid cell is either dead or alive. Each tick, or turn, the entire grid updates simultaneously according to a set of rules. The state of a cell changes based on its neighbours: A live cell will thrive only if it is accompanied by other cells. If there are too few, it will die, as by underpopulation. On the other hand, if there are too many, it will also die, as by starvation. Additionally, under specific circumstances a dead cell can become alive, as by reproduction.</p>
+
+                <p>The specific rules is as follows: For each grid, its immediate neighbours count as those cells that are adjacent, either horizontally, vertically or diagonally. The updated state of the grid cell thus depends only on the state of these 8 neighbours (and itself):
+                </p>
+
+                <p><ul>
+                    <li>If the cell is alive, and has fewer than 2 live neighbours, it dies.</li>
+                    <li>If the cell is alive, and has more than 3 live neighbours, it dies.</li>
+                    <li>If the cell is dead, and has exactly 3 live neighbours, it comes alive.</li>
+                </ul></p>
+
+                <p>Under all other circumstances, a cell maintains its state.</p>
+
+                <p>In this demo, you can play around with the game and see how it behaves for different inputs. As it runs in WebGL, it can support very large grid sizes in real time. As long as the GPU is not bottlenecked, it will run the simulation with the same refresh rate as the monitor or browser settings. With the fast-forward button, the simulation can skip ahead of the framerate. The preset dropdown can load some classical starting configurations, such as the famous <a href="https://en.wikipedia.org/wiki/Gun_(cellular_automaton)" target="_blank">glider gun</a> which generates packets of cells that migrate over the board.</p>
+
+                <p>NB: When running at the fastest update speeds, beware of flickering formations which can cause discomfort. Flickering pixels can also cause image retention issues on some monitors.</p>
             </div>
 
             <div id="footer"><div></div><div>Copyright Jon Galán 2025</div></div>
