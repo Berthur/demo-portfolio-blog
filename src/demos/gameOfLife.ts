@@ -1,8 +1,8 @@
-import { DataTexture, RedFormat, UnsignedByteType, Vector2, WebGLRenderer, WebGLRenderTarget } from "three";
+import { Color, ColorManagement, DataTexture, RedFormat, UnsignedByteType, Vector2, WebGLRenderer, WebGLRenderTarget } from "three";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { Demo } from "./demo";
-import { ButtonSetting, NumberSetting, PlayerSetting, PlayerState, Settings } from "../settings";
+import { ButtonSetting, ColorSetting, NumberSetting, PlayerSetting, PlayerState, Settings } from "../settings";
 import { FrameTimer, glsl } from "../utils";
 
 export class GameOfLifeDemo extends Demo {
@@ -15,6 +15,7 @@ export class GameOfLifeDemo extends Demo {
     private currStateTarget: WebGLRenderTarget;
     private nextStateTarget: WebGLRenderTarget;
     private readonly computePass: ShaderPass;
+    private readonly displayPass: ShaderPass;
     private readonly composer: EffectComposer;
 
     private texture1: DataTexture;
@@ -25,6 +26,8 @@ export class GameOfLifeDemo extends Demo {
 
     constructor(container: HTMLElement) {
         super(container);
+        ColorManagement.enabled = false;
+
         this.canvas = document.createElement('canvas');
         container.prepend(this.canvas);
         this.timer = new FrameTimer(() => this.renderFrame());
@@ -40,10 +43,12 @@ export class GameOfLifeDemo extends Demo {
         this.initializeTextures();
 
         this.computePass = new ShaderPass(ComputeShader, 'prevState');
-        const copyPass = new ShaderPass(DisplayShader, 'gridState');
+        this.displayPass = new ShaderPass(DisplayShader, 'gridState');
         this.composer = new EffectComposer(this.renderer);
         this.composer.addPass(this.computePass);
-        this.composer.addPass(copyPass);
+        this.composer.addPass(this.displayPass);
+
+        this.displayPass.uniforms.color.value.set(0x50cdb1);
 
         this.createSettings();
     }
@@ -96,7 +101,7 @@ export class GameOfLifeDemo extends Demo {
         this.texture2.dispose();
         this.currStateTarget.dispose();
         this.nextStateTarget.dispose();
-        this.currStateTarget = new WebGLRenderTarget(this.n, this.m); // TODO: Prevent creating textures twice
+        this.currStateTarget = new WebGLRenderTarget(this.n, this.m);
         this.nextStateTarget = new WebGLRenderTarget(this.n, this.m);
         this.initializeTextures();
         this.start();
@@ -132,6 +137,12 @@ export class GameOfLifeDemo extends Demo {
             const speed = updateSpeeds[v];
             this.timer.delay = 1000 / speed;
             this.timer.start(); // Start timer again if it was paused
+        });
+
+        const colorSetting = new ColorSetting('Color', '#50cdb1');
+        settings.add(colorSetting);
+        colorSetting.subscribe(v => {
+            this.displayPass.uniforms.color.value.set(v);
         });
 
         const playerSetting = new PlayerSetting('Pause/Skip');
@@ -205,6 +216,7 @@ const DisplayShader = {
 	name: 'CopyShader',
 	uniforms: {
 		'gridState': { value: null },
+        'color': { value: new Color(0xffffff) },
 	},
 	vertexShader: glsl`
 		varying vec2 vUv;
@@ -216,11 +228,11 @@ const DisplayShader = {
     `,
 	fragmentShader: glsl`
 		uniform sampler2D gridState;
+        uniform vec3 color;
 		varying vec2 vUv;
 
 		void main() {
 	        float state = texture2D(gridState, vUv).r;
-            vec3 color = vec3(80.0, 205.0, 177.0) / 255.0;
 			gl_FragColor = vec4(state * color, 1.0);
 		}
     `
