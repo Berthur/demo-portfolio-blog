@@ -139,12 +139,6 @@ export class GameOfLifeDemo extends Demo {
             this.timer.start(); // Start timer again if it was paused
         });
 
-        const colorSetting = new ColorSetting('Color', '#50cdb1');
-        settings.add(colorSetting);
-        colorSetting.subscribe(v => {
-            this.displayPass.uniforms.color.value.set(v);
-        });
-
         const playerSetting = new PlayerSetting('Pause/Skip');
         settings.add(playerSetting);
         playerSetting.subscribe(v => {
@@ -159,6 +153,12 @@ export class GameOfLifeDemo extends Demo {
                     this.fastForward(50);
                     break;
             }
+        });
+
+        const colorSetting = new ColorSetting('Color', '#50cdb1');
+        settings.add(colorSetting);
+        colorSetting.subscribe(v => {
+            this.displayPass.uniforms.color.value.set(v);
         });
 
         const restartButton = new ButtonSetting('Restart', 'Restart', false);
