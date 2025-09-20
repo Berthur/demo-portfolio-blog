@@ -84,7 +84,7 @@ int mandelbrot(vec2 c) {
     return i;
 }</pre>
 
-                <p>The fractal shader calls the <code>mandelbrot()</code> function once, and maps the output (the number of iterations required to detect divergence) to a colour according to some colour scheme. Here, we use <a href="https://mathworld.wolfram.com/BernsteinPolynomial.html" target="_blank">Bernstein polynomials</a> to achieve a nicely weighted colour scheme in more than one hue. More complex colour schemes exist to e.g. prevent banding, but this is good enough for our purpose.</p>
+                <p>The fractal shader calls the <code>mandelbrot()</code> function once, and maps the output (the number of iterations required to detect divergence) to a colour according to some colour scheme. Here, we use <a href="https://mathworld.wolfram.com/BernsteinPolynomial.html" target="_blank">Bernstein polynomials</a> to achieve a nicely weighted colour scheme in more than one hue. More complex colouring algorithms exist to e.g. prevent banding effects, but this is good enough for our purpose.</p>
 
                 <p>That's already most of the work. All that is left is to map each pixel to a corresponding coordinate on the complex plane. This is where navigation comes in: We want to support panning around the fractal, as well as zooming in and out in real time. The mapping function can be designed to support these navigation controls. All we actually need to uniquely identify which portion of the fractal the user is looking at is the complex coordinate at the centre of the viewport, and a radius &mdash; the distance on the complex plane from the center to the edge of the viewport. With this information, we can map linearly from pixel center coordinates to complex coordinates within the viweport. To achieve camera panning, all we need to do is move the centre coordinate, and to zoom we reduce or increase the radius. Zooming into or out from a target point (say, the cursor) can be achieved by using a combination of both.</p>
 
@@ -112,7 +112,7 @@ void main() {
     for (int i=0; i&lt;AA; ++i) {
         for (int j=0; j&lt;AA; ++j) {
 
-            vec2 virtualCoord = (float(AA) * vec2(gl_FragCoord) + vec2(i, j)) &#47; (float(AA) * viewSize);
+            vec2 virtualCoord = (float(AA) * vec2(gl_FragCoord) + vec2(i, j)) / (float(AA) * viewSize);
             virtualCoord -= 0.5;
             virtualCoord *= 2.0;
             vec2 c = zoomTarget + zoomRadius * virtualCoord * vec2(aspect, 1.0);
@@ -121,13 +121,20 @@ void main() {
         }
     }
 
-    color &#47;= float(AA * AA);
+    color /= float(AA * AA);
     gl_FragColor = vec4(color, 1.0);
 }</pre>
 
                 <h2>Julia Fractal</h2>
 
-                <p>(Blog in progress)</p>
+                <p>With the Mandelbrot fractal renderer implemented, it is very easy to add support to certain other fractals with a similar implementations. One such fractal is the famous <a href="https://en.wikipedia.org/wiki/Julia_set" target="_blank">Julia set</a>. We can render some hand-picked special cases of the Julia fractal using essentially the same algorithm as for the Mandelbrot set. To render the Mandelbrot fractal, our spatial variable was <span-latex>c</span-latex>, and <span-latex>z</span-latex> was always initialized as 0. To render the Julia fractal, we instead fix <span-latex>c</span-latex> to some interesting value that remains constant throughout. The complex coordinate of the pixel is instead written into the initial value of <span-latex>z</span-latex>. Apart from this, our algorithm remains unchanged. If we look up some popular values for <span-latex>c</span-latex>, say <span-latex>c = -0.8 + 0.156i</span-latex>, and plug it in, we immediately get some pretty beautiful visualizations:</p>
+
+                <img src="../resources/blog/julia.jpg" alt="Julia">
+                <p class="imgText"><em>Fig. 5:</em> Julia fractal for <span-latex>c = -0.8 + 0.156i</span-latex></p>
+
+                <p>The Julia fractal can look wildly different for various constants <span-latex>c</span-latex>. In this demo, a few hard-coded options are exposed as presets in the settings.</p>
+
+                <p>And that concludes this coding adventure. The result is a satisfying little fractal navigator that lets the user explore the beautiful hidden corner of mathematics.</p>
 
                 <div class="blogLinks"></div>
             </div>
