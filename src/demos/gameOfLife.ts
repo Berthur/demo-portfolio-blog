@@ -2,7 +2,7 @@ import { Color, ColorManagement, DataTexture, RedFormat, UnsignedByteType, Vecto
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { Demo } from "./demo";
-import { ButtonSetting, ColorSetting, NumberSetting, PlayerSetting, PlayerState, Settings } from "../settings";
+import { ButtonSetting, ColorSetting, DropdownSetting, NumberSetting, PlayerSetting, PlayerState, Settings } from "../settings";
 import { FrameTimer, glsl } from "../utils";
 
 export class GameOfLifeDemo extends Demo {
@@ -23,6 +23,8 @@ export class GameOfLifeDemo extends Demo {
 
     private n = 256;
     private m = 256;
+
+    private preset?: number[];
 
     constructor(container: HTMLElement) {
         super(container);
@@ -61,18 +63,34 @@ export class GameOfLifeDemo extends Demo {
     
     private initializeTextures(): void {
         const data = new Uint8Array(this.n * this.m);
-        for (let i=0; i<data.length; ++i)
-            data[i] = Number(Math.random() < 0.1);
+        this.writeInitialState(data);
 
         this.texture1 = new DataTexture(data, this.n, this.m);
         this.texture1.type = UnsignedByteType;
         this.texture1.format = RedFormat;
+        this.texture1.flipY = true; // Easier to work with presets
         this.texture1.needsUpdate = true;
 
         this.texture2 = this.texture1.clone();
 
         this.currStateTarget.texture = this.texture1;
         this.nextStateTarget.texture = this.texture2;
+    }
+
+    private writeInitialState(data: Uint8Array): void {
+        if (this.preset) {
+            const width = ~~Math.sqrt(this.preset.length);
+            const offset = ~~Math.max(4, (this.n - width) / 2);
+            for (let i=0; i<this.preset.length; ++i) {
+                const x = i % width;
+                const y = ~~(i / width);
+                data[(y + offset) * this.m + x + offset] = this.preset[y * width + x];
+            }
+        } else {
+            // Fill 10% at random:
+            for (let i=0; i<data.length; ++i)
+                data[i] = Number(Math.random() < 0.1);
+        }
     }
 
     start(): void {
@@ -107,6 +125,11 @@ export class GameOfLifeDemo extends Demo {
         this.start();
     }
 
+    loadPreset(presetName: string): void {
+        this.preset = presets[presetName.toLowerCase()];
+        this.restart();
+    }
+
     private createSettings(): void {
         const settings = new Settings();
         this.container.append(settings.element);
@@ -123,6 +146,13 @@ export class GameOfLifeDemo extends Demo {
             this.n = x;
             this.m = x;
             this.restart();
+        });
+
+        const presetOptions = ['random', ...Object.keys(presets)].map(s => s[0].toUpperCase() + s.slice(1));
+        const presetSetting = new DropdownSetting('Preset', 0, presetOptions);
+        settings.add(presetSetting);
+        presetSetting.subscribe(v => {
+            this.loadPreset(v);
         });
 
         const updateSpeeds = [1, 2, 5, 10, 20, Infinity];
@@ -236,4 +266,32 @@ const DisplayShader = {
 			gl_FragColor = vec4(state * color, 1.0);
 		}
     `
+};
+
+const presets = {
+    glider: [
+        0,0,1,
+        1,0,1,
+        0,1,1,
+    ],
+    spaceship: [
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,
+        0,0,0,1,1,0,0,0,0,0,0,0,1,0,0,0,0,1,
+        1,1,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,1,
+        1,1,1,1,0,1,1,0,0,0,0,0,0,0,0,0,1,0,
+        0,1,1,0,0,1,1,0,1,1,0,0,0,1,1,0,0,0,
+        0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,0,0,0,
+        0,0,0,0,0,1,0,1,0,1,0,1,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,
+        0,0,0,0,0,1,0,1,0,1,0,1,0,0,0,0,0,0,
+        0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,0,0,0,
+        0,1,1,0,0,1,1,0,1,1,0,0,0,1,1,0,0,0,
+        1,1,1,1,0,1,1,0,0,0,0,0,0,0,0,0,1,0,
+        1,1,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,1,
+        0,0,0,1,1,0,0,0,0,0,0,0,1,0,0,0,0,1,
+        0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    ],
 };
