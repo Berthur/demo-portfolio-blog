@@ -126,7 +126,7 @@ export class GameOfLifeDemo extends Demo {
     }
 
     loadPreset(presetName: string): void {
-        this.preset = presets[presetName.toLowerCase()]
+        this.preset = presets[presetName.toLowerCase().replace(' ', '_')]
             ?.split('')
             ?.filter(c => c === 'x' || c === '-')
             ?.map(c => Number(c === 'x'));
@@ -151,7 +151,7 @@ export class GameOfLifeDemo extends Demo {
             this.restart();
         });
 
-        const presetOptions = ['random', ...Object.keys(presets)].map(s => s[0].toUpperCase() + s.slice(1));
+        const presetOptions = ['random', ...Object.keys(presets)].map(s => s[0].toUpperCase() + s.slice(1).replace('_', ' '));
         const presetSetting = new DropdownSetting('Preset', 0, presetOptions);
         settings.add(presetSetting);
         presetSetting.subscribe(v => {
@@ -297,4 +297,17 @@ x x x - x x - - - - - - - - - - - x
 - - - - - - - - - - - - - x x x x x
 - - - - - - - - - - - - - - - - - -
     `,
+    glider_gun: `
+- - - - - - - - - - - - - - - - - - - - - - - - x - - - - - - - - - - -
+- - - - - - - - - - - - - - - - - - - - - - x - x - - - - - - - - - - -
+- - - - - - - - - - - - x x - - - - - - x x - - - - - - - - - - - - x x
+- - - - - - - - - - - x - - - x - - - - x x - - - - - - - - - - - - x x
+x x - - - - - - - - x - - - - - x - - - x x - - - - - - - - - - - - - -
+x x - - - - - - - - x - - - x - x x - - - - x - x - - - - - - - - - - -
+- - - - - - - - - - x - - - - - x - - - - - - - x - - - - - - - - - - -
+- - - - - - - - - - - x - - - x - - - - - - - - - - - - - - - - - - - -
+- - - - - - - - - - - - x x - - - - - - - - - - - - - - - - - - - - - -
+` + `
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+`.repeat(27),
 };
