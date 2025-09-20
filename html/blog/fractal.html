@@ -93,7 +93,12 @@ int mandelbrot(vec2 c) {
 
                 <h2>Antialiasing</h2>
 
-                <p>(Blog in progress)</p>
+                <p>Mapping each pixel to the complex coordinate that lies over the centre of the pixel is a decent approximation of the fractal at the available resolution, and gives quite visually appealing results, as seen above. However, like many other implementations in computer graphics, it suffers from our eternal enemy, aliasing effects, as well as noise. Because a pixel covers a non-zero portion of the complex plane, sampling the fractal only at the centre may not produce the colour that best represents that area, it is not surprising that we see jagged curves and what looks like random noise. Ideally, we would sample the fractal across every infinitessimal point on the pixel (an integral) and compute their average color. In the absence of infinite computing power, we can do the next-best thing: Compute a number of samples, more than 1 but few enough that the application remains navigable in real-time. One easy way to do this is to subdivide the pixel uniformly into 4, 9 or more subpixels, and sample those. The average colour of all subpixels becomes the final colour of the original pixel. The approach is obviously computationally expensive but easy to implement and yields much better visual results:</p>
+
+                <img src="../resources/blog/fractal_aa-comparison.png" alt="Supersampling the fractal">
+                <p class="imgText"><em>Fig. 4:</em> A portion of the Mandelbort fractal with no antialiasing (left) and 5x5 supersampling (right)</p>
+
+                <p>The amount of supersampling is simply exposed as a parameter to balance, together with resolution and iteration count, with the desired visual quality and framerate. On powerful modern hardware, this demo can run in relative real-time with all settings on maximum, but on less powerful devices, such as mobile devices, the settings must be tuned down a little.</p>
 
                 <h2>Julia Fractal</h2>
 
