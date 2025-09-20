@@ -1,6 +1,5 @@
-import { DataTexture, FloatType, RGBAFormat, Vector2, WebGLRenderer, WebGLRenderTarget } from "three";
+import { DataTexture, RedFormat, UnsignedByteType, Vector2, WebGLRenderer, WebGLRenderTarget } from "three";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
-import { CopyShader } from "three/examples/jsm/shaders/CopyShader";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { Demo } from "./demo";
 import { ButtonSetting, NumberSetting, PlayerSetting, PlayerState, Settings } from "../settings";
@@ -41,7 +40,7 @@ export class GameOfLifeDemo extends Demo {
         this.initializeTextures();
 
         this.computePass = new ShaderPass(ComputeShader, 'prevState');
-        const copyPass = new ShaderPass(CopyShader);
+        const copyPass = new ShaderPass(DisplayShader, 'gridState');
         this.composer = new EffectComposer(this.renderer);
         this.composer.addPass(this.computePass);
         this.composer.addPass(copyPass);
@@ -56,18 +55,13 @@ export class GameOfLifeDemo extends Demo {
     }
     
     private initializeTextures(): void {
-        const size = this.n * this.m;
-        const data = new Float32Array(4 * size);
-        for (let i=0; i<size; ++i) {
-            data[i*4    ] = Number(Math.random() < 0.1);
-            data[i*4 + 1] = 0;
-            data[i*4 + 2] = 0;
-            data[i*4 + 3] = 1;
-        }
+        const data = new Uint8Array(this.n * this.m);
+        for (let i=0; i<data.length; ++i)
+            data[i] = Number(Math.random() < 0.1);
 
         this.texture1 = new DataTexture(data, this.n, this.m);
-        this.texture1.type = FloatType;
-        this.texture1.format = RGBAFormat;
+        this.texture1.type = UnsignedByteType;
+        this.texture1.format = RedFormat;
         this.texture1.needsUpdate = true;
 
         this.texture2 = this.texture1.clone();
@@ -102,7 +96,7 @@ export class GameOfLifeDemo extends Demo {
         this.texture2.dispose();
         this.currStateTarget.dispose();
         this.nextStateTarget.dispose();
-        this.currStateTarget = new WebGLRenderTarget(this.n, this.m);
+        this.currStateTarget = new WebGLRenderTarget(this.n, this.m); // TODO: Prevent creating textures twice
         this.nextStateTarget = new WebGLRenderTarget(this.n, this.m);
         this.initializeTextures();
         this.start();
@@ -172,7 +166,7 @@ const ComputeShader = {
     },
     vertexShader: glsl`
         void main() {
-            gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
         }
     `,
     fragmentShader: glsl`
@@ -202,9 +196,32 @@ const ComputeShader = {
             
             bool nextAlive = alive && neighbours >= 2 && neighbours <= 3 || !alive && neighbours == 3;
 
-            vec3 color = vec3(80.0, 205.0, 177.0) / 255.0;
-
-            gl_FragColor = vec4((nextAlive ? 1.0 : 0.0) * color, 1.0);
+            gl_FragColor = vec4(nextAlive ? 1.0 : 0.0, 0.0, 0.0, 1.0);
         }
     `,
+};
+
+const DisplayShader = {
+	name: 'CopyShader',
+	uniforms: {
+		'gridState': { value: null },
+	},
+	vertexShader: glsl`
+		varying vec2 vUv;
+
+		void main() {
+			vUv = uv;
+			gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+		}
+    `,
+	fragmentShader: glsl`
+		uniform sampler2D gridState;
+		varying vec2 vUv;
+
+		void main() {
+	        float state = texture2D(gridState, vUv).r;
+            vec3 color = vec3(80.0, 205.0, 177.0) / 255.0;
+			gl_FragColor = vec4(state * color, 1.0);
+		}
+    `
 };
