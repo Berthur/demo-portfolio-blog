@@ -84,7 +84,12 @@ int mandelbrot(vec2 c) {
     return i;
 }</pre>
 
-                <p>(Blog in progress)</p>
+                <p>That's already most of the work. All that is left is to map each pixel to a corresponding coordinate on the complex plane. This is where navigation comes in: We want to support panning around the fractal, as well as zooming in and out in real time. The mapping function can be designed to support these navigation controls. All we actually need to uniquely identify which portion of the fractal the user is looking at is the complex coordinate at the centre of the viewport, and a radius &mdash; the distance on the complex plane from the center to the edge of the viewport. With this information, we can map linearly from pixel center coordinates to complex coordinates within the viweport. To achieve camera panning, all we need to do is move the centre coordinate, and to zoom we reduce or increase the radius. Zooming into or out from a target point (say, the cursor) can be achieved by using a combination of both.</p>
+
+                <p>The centre coordinate and radius are given to the fractal shader as uniforms, and the shader does the mapping for each fragment. This leads us to the sad part of this implementation: The highest floating-point precision that WebGL supports directly is 32 bits, so both the inputs and the calculations will be limited to this precision, placing a limit on how deep we can zoom before floating-point errors become too significant. Getting around this requires more sophisticated algorithms, one of the reasons why deep zooming is computationally expensive. Another reason is that deeper zooms tend to require an increasingly large number of iterations to appropriately approximate the fractal, which would bottleneck this implementation after a certain point even if the precision issue could be ignored. Dedicated fractal rendering software make use of a number of other tricks for acceleration, but that is a science of its own and remains outside the scope of this WebGL coding adventure.</p>
+
+                <img width="500px" src="../resources/blog/fractal_floating-point-precision.png" alt="Floating-point errors">
+                <p class="imgText"><em>Fig. 3:</em> The Mandelbrot fractal, when zooming in deeper than 32-bit floating-point precision allows</p>
 
                 <h2>Antialiasing</h2>
 
