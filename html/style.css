@@ -36,6 +36,10 @@ a:hover {
     margin: 1em 0px;
 }
 
+span-latex {
+    text-wrap: nowrap;
+}
+
 .eq {
     text-align: center;
 }
