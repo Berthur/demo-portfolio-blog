@@ -127,14 +127,14 @@ void main() {
 
                 <h2>Julia Fractal</h2>
 
-                <p>With the Mandelbrot fractal renderer implemented, it is very easy to add support to certain other fractals with a similar implementations. One such fractal is the famous <a href="https://en.wikipedia.org/wiki/Julia_set" target="_blank">Julia set</a>. We can render some hand-picked special cases of the Julia fractal using essentially the same algorithm as for the Mandelbrot set. To render the Mandelbrot fractal, our spatial variable was <span-latex>c</span-latex>, and <span-latex>z</span-latex> was always initialized as 0. To render the Julia fractal, we instead fix <span-latex>c</span-latex> to some interesting value that remains constant throughout. The complex coordinate of the pixel is instead written into the initial value of <span-latex>z</span-latex>. Apart from this, our algorithm remains unchanged. If we look up some popular values for <span-latex>c</span-latex>, say <span-latex>c = -0.8 + 0.156i</span-latex>, and plug it in, we immediately get some pretty beautiful visualizations:</p>
+                <p>With the Mandelbrot fractal renderer implemented, it is very easy to add support to certain other fractals with similar implementations. One such fractal is the famous <a href="https://en.wikipedia.org/wiki/Julia_set" target="_blank">Julia set</a>. We can render some hand-picked special cases of the Julia fractal using essentially the same algorithm as for the Mandelbrot set. To render the Mandelbrot fractal, our spatial variable was <span-latex>c</span-latex>, and <span-latex>z</span-latex> was always initialized to 0. To render the Julia fractal, we instead fix <span-latex>c</span-latex> to some interesting value that remains constant throughout. The complex coordinate of the pixel is instead written into the initial value of <span-latex>z</span-latex>. Apart from this, our algorithm remains unchanged. If we look up some popular values for <span-latex>c</span-latex> (say, <span-latex>c = -0.8 + 0.156i</span-latex>), and plug it in, we immediately get some pretty beautiful visualizations:</p>
 
                 <img src="../resources/blog/julia.jpg" alt="Julia">
                 <p class="imgText"><em>Fig. 5:</em> Julia fractal for <span-latex>c = -0.8 + 0.156i</span-latex></p>
 
                 <p>The Julia fractal can look wildly different for various constants <span-latex>c</span-latex>. In this demo, a few hard-coded options are exposed as presets in the settings.</p>
 
-                <p>And that concludes this coding adventure. The result is a satisfying little fractal navigator that lets the user explore the beautiful hidden corner of mathematics.</p>
+                <p>And that concludes this coding adventure. The result is a satisfying little fractal navigator that lets the user explore this beautiful hidden corner of mathematics.</p>
 
                 <div class="blogLinks"></div>
             </div>
