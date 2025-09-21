@@ -177,6 +177,10 @@ span-latex {
     text-align: initial;
 }
 
+.indexList > li {
+    margin: 1.3em 0;
+}
+
 .demosGrid {
     padding: 20px;
     display: flex;
