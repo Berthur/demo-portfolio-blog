@@ -10,6 +10,11 @@
                 "title": "Interactive Fractal",
                 "file": "fractal.html",
                 "date": "2025-09-13"
+            },
+            {
+                "title": "Traffic Simulator",
+                "file": "traffic.html",
+                "date": "2025-09-28"
             }
         ]
     }
