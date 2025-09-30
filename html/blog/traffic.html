@@ -29,7 +29,9 @@
 
                 <h1>Traffic Simulator</h1>
 
-                <p>In the <a href="">particle system</a> demo, we saw how independent particles can be simulated on the GPU in real-time, according to some set of laws. But what if the problem requires some interaction between objects? If the interaction is limited spatially, such as for a collision system, it is possible to achieve interaction still in real time, by discretizing space and having each object record its presence and state into the portion of space where it lies in that moment.</p>
+                <p>In the <a href="./particles.html">particle system</a> demo, we saw how independent particles can be simulated on the GPU in real-time, according to some set of laws. But what if the problem requires some interaction between objects? If the interaction is limited spatially, such as for a collision system, it can often be achieved in real-time by discretizing space and having each object record its presence and state into the portion of space where it lies in that moment.</p>
+
+                <p>The same computation code can also be used for other things than particles. In this demo, our "particles" are little cars, moving around on a city grid. The position and velocity of the cars are updated just like for a particle system, but in the final render pass, instead of a cluster of points, we render an instanced mesh so that each instance has its own transformation and colour.</p>
 
                 <p>[Blog entry in progress]</p>
 
