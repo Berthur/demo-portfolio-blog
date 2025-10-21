@@ -1,8 +1,9 @@
+import * as siteJSON from "../html/site.json";
 import { FractalDemo } from "./demos/fractalDemo";
 import { ParticlesDemo } from "./demos/particlesDemo";
 import { TrafficDemo } from "./demos/trafficDemo";
 import { GameOfLifeDemo } from "./demos/gameOfLife";
-import * as siteJSON from "../html/site.json";
+import { ClothDemo } from "./demos/clothDemo";
 
 interface BlogEntry {
     index: number;
@@ -20,6 +21,7 @@ export class App {
         fractal: FractalDemo,
         traffic: TrafficDemo,
         gameOfLife: GameOfLifeDemo,
+        cloth: ClothDemo,
     });
 
     constructor() {
