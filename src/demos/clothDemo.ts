@@ -97,6 +97,7 @@ export class ClothDemo extends Demo {
         for (let i=0; i<n; ++i) {
             data[4*i    ] = 2 * (i % this.clothDimensions.x) / this.clothDimensions.x - 1;
             data[4*i + 1] = 2 * ~~(i / this.clothDimensions.x) / this.clothDimensions.y - 1;
+            data[4*i + 2] = 0.1 * Math.random() - 0.05;
         }
 
         this.positionTexture0 = new DataTexture(data, this.clothDimensions.x, this.clothDimensions.y);
@@ -219,20 +220,20 @@ const ComputeShader = {
             corrMousePos.y = -corrMousePos.y;
             corrMousePos /= maxViewSize;
 
-            vec2 p = texelFetch(positionTexture, fragCoord, 0).rg;
-            vec2 v = texelFetch(velocityTexture, fragCoord, 0).rg;
+            vec3 p = texelFetch(positionTexture, fragCoord, 0).rgb;
+            vec3 v = texelFetch(velocityTexture, fragCoord, 0).rgb;
             float d = 0.001 * delta;
 
             // Hang from upper corners:
             if (!(fragCoord.y == clothDimensions.y - 1 && (fragCoord.x == 0 || fragCoord.x == clothDimensions.x - 1))) {
 
-                vec2 f = vec2(0.0, -0.3);
+                vec3 f = vec3(0.0, -0.3, 0.0);
 
                 for (int j=-1; j<=1; ++j) for (int i=-1; i<=1; ++i) if (!(i == 0 && j == 0)) {
-                    ivec2 coords = fragCoord + ivec2(i, j);
-                    if (coords.x >= 0 && coords.x < clothDimensions.x && coords.y >= 0 && coords.y < clothDimensions.y) {
-                        vec2 p1 = texelFetch(positionTexture, coords, 0).rg;
-                        vec2 dir = p1 - p;
+                    ivec2 fragCoord1 = fragCoord + ivec2(i, j);
+                    if (fragCoord1.x >= 0 && fragCoord1.x < clothDimensions.x && fragCoord1.y >= 0 && fragCoord1.y < clothDimensions.y) {
+                        vec3 p1 = texelFetch(positionTexture, fragCoord1, 0).rgb;
+                        vec3 dir = p1 - p;
                         float r = length(dir);
                         dir /= r;
                         float restR = 0.2;
@@ -242,15 +243,15 @@ const ComputeShader = {
                     }
                 }
 
-                vec2 a = f;
+                vec3 a = f;
                 v += d * a;
                 v *= max(0.5, (1.0 - d * damping));
                 p += d * v;
 
             }
 
-            outPosition = vec4(p, v);
-            outVelocity = vec4(v, 0.0, 1.0);
+            outPosition = vec4(p, 0.0);
+            outVelocity = vec4(v, 0.0);
         }
     `,
 };
@@ -272,10 +273,12 @@ const vertexShader = glsl`
         float aspect = viewSize.x / viewSize.y;
 
         ivec2 coord = ivec2(gl_VertexID % clothDimensions.x, gl_VertexID / clothDimensions.x);
-        vec4 state = texelFetch(positionTexture, coord, 0);
-        state.rg = aspectCorrectInv(state.rg, aspect);
+        vec3 pos = texelFetch(positionTexture, coord, 0).rgb;
 
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(state.rg, 0.0, 1.0);
+        // TODO: Is aspect correction needed?
+        //state.rg = aspectCorrectInv(state.rg, aspect);
+
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
     }
 `;
 
