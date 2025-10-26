@@ -68,6 +68,7 @@ export class ClothDemo extends Demo {
             vertexShader: vertexShader,
             fragmentShader: fragmentShader,
             side: DoubleSide,
+            wireframe: true,
         });
         this.material.uniforms.viewSize = new Uniform(this.dimensions);
         this.material.uniforms.clothDimensions = new Uniform(this.clothDimensions);
@@ -215,6 +216,8 @@ const ComputeShader = {
         void main() {
             ivec2 fragCoord = ivec2(gl_FragCoord.xy);
             float maxViewSize = max(viewSize.x, viewSize.y);
+            float springLength = 0.2;
+            float springStrength = 20.0;
 
             vec2 corrMousePos = 2.0 * mousePos - viewSize;
             corrMousePos.y = -corrMousePos.y;
@@ -223,6 +226,9 @@ const ComputeShader = {
             vec3 p = texelFetch(positionTexture, fragCoord, 0).rgb;
             vec3 v = texelFetch(velocityTexture, fragCoord, 0).rgb;
             float d = 0.001 * delta;
+
+            vec3 v1 = v;
+            vec3 p1 = p;
 
             // Hang from upper corners:
             if (!(fragCoord.y == clothDimensions.y - 1 && (fragCoord.x == 0 || fragCoord.x == clothDimensions.x - 1))) {
@@ -236,22 +242,21 @@ const ComputeShader = {
                         vec3 dir = p1 - p;
                         float r = length(dir);
                         dir /= r;
-                        float restR = 0.2;
-                        float k = 20.0;
-                        //if (bool(i ^ j)) restR *= SQRT_2;
-                        f += k * (r - restR) * dir;
+                        float sr = springLength;
+                        if (!(i == 0 || j == 0)) sr *= SQRT_2;
+                        f += springStrength * (r - sr) * dir;
                     }
                 }
 
                 vec3 a = f;
-                v += d * a;
-                v *= max(0.5, (1.0 - d * damping));
-                p += d * v;
+                v1 = v + d * a;
+                v1 -= 0.05 * v1; // Damping
+                p1 = p + d * v;
 
             }
 
-            outPosition = vec4(p, 0.0);
-            outVelocity = vec4(v, 0.0);
+            outPosition = vec4(p1, 0.0);
+            outVelocity = vec4(v1, 0.0);
         }
     `,
 };
