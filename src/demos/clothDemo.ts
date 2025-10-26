@@ -42,8 +42,8 @@ export class ClothDemo extends Demo {
         this.nextStateTarget = new WebGLRenderTarget(this.clothDimensions.x, this.clothDimensions.y, { count: 2 });
 
         this.scene = new Scene();
-        this.camera = new PerspectiveCamera(90);
-        this.camera.position.set(0, 0, 1);
+        this.camera = new PerspectiveCamera(75, 1, 0.01, 50);
+        this.camera.position.set(0, 0, 3);
         const controls = new OrbitControls(this.camera, this.canvas);
         controls.zoomToCursor = true;
 
@@ -78,6 +78,7 @@ export class ClothDemo extends Demo {
         this.mesh = new Mesh();
         this.mesh.material = this.material;
         this.mesh.geometry = new PlaneGeometry(1, 1, this.clothDimensions.x - 1, this.clothDimensions.y - 1);
+        this.mesh.frustumCulled = false;
         this.scene.add(this.mesh);
 
         this.createSettings();
@@ -150,16 +151,21 @@ export class ClothDemo extends Demo {
         const delta = Math.min(t1 - this.t0, 200);
         this.t0 = t1;
 
-        const tmp = this.currStateTarget;
-        this.currStateTarget = this.nextStateTarget;
-        this.nextStateTarget = tmp;
+        // TODO: Prevent rendering between steps
+        const steps = 10;
+        for (let i=0; i<steps; ++i) {
+            const d = delta / steps;
+            const tmp = this.currStateTarget;
+            this.currStateTarget = this.nextStateTarget;
+            this.nextStateTarget = tmp;
 
-        this.updateUniforms(delta);
+            this.updateUniforms(d);
 
-        this.composer.readBuffer = this.currStateTarget;
-        this.composer.writeBuffer = this.nextStateTarget;
-        this.composer.render();
-        
+            this.composer.readBuffer = this.currStateTarget;
+            this.composer.writeBuffer = this.nextStateTarget;
+            this.composer.render();
+        }
+
         requestAnimationFrame(() => { this.frame() });
     }
 
@@ -216,8 +222,8 @@ const ComputeShader = {
         void main() {
             ivec2 fragCoord = ivec2(gl_FragCoord.xy);
             float maxViewSize = max(viewSize.x, viewSize.y);
-            float springLength = 0.2;
-            float springStrength = 20.0;
+            float springLength = 2.0 / float(clothDimensions.y);
+            float springStrength = 400.0;
 
             vec2 corrMousePos = 2.0 * mousePos - viewSize;
             corrMousePos.y = -corrMousePos.y;
@@ -233,7 +239,7 @@ const ComputeShader = {
             // Hang from upper corners:
             if (!(fragCoord.y == clothDimensions.y - 1 && (fragCoord.x == 0 || fragCoord.x == clothDimensions.x - 1))) {
 
-                vec3 f = vec3(0.0, -0.3, 0.0);
+                vec3 f = vec3(0.0, -9.8, 0.0);
 
                 for (int j=-1; j<=1; ++j) for (int i=-1; i<=1; ++i) if (!(i == 0 && j == 0)) {
                     ivec2 fragCoord1 = fragCoord + ivec2(i, j);
@@ -248,11 +254,11 @@ const ComputeShader = {
                     }
                 }
 
-                vec3 a = f;
-                v1 = v + d * a;
-                v1 -= 0.05 * v1; // Damping
-                p1 = p + d * v;
+                float dmp = 0.01;
 
+                vec3 a = f;
+                p1 = p + (1.0 - dmp) * (d*v + 0.5*d*d*a);
+                v1 = (1.0 - dmp) * (v + d * a);
             }
 
             outPosition = vec4(p1, 0.0);
