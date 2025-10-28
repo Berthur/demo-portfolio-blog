@@ -318,11 +318,27 @@ const fragmentShader = glsl`
     out vec4 fragColor;
 
     void main() {
-        vec3 diffuse = vec3(0.0, 0.3, 0.1);
-        vec3 lightDir = normalize(vec3(-0.2, 0.3, -0.7));
-        vec3 camDir = normalize(cameraPosition - vPosition);
-        float dotValue = dot(vNormal, camDir);
-        float light = 0.2 + 0.8 * abs(dotValue); // TODO: Something better
+        float ambient = 0.2;
+        float specHardness = 5.0;
+        vec3 diffuse = vec3(0.82, 0.71, 0.41);
+        vec3 lightPos = vec3(0.5, 0.0, 0.5);
+
+        vec3 normal = vNormal;
+        if (!gl_FrontFacing) normal = -normal;
+
+        vec3 dirToLight = lightPos - vPosition;
+        float distToLight = length(dirToLight);
+        dirToLight /= distToLight;
+        vec3 dirToCam = normalize(cameraPosition - vPosition);
+
+        vec3 h = normalize(dirToLight + dirToCam);
+        float dotValue = dot(normal, dirToLight);
+        float blinnPhong = pow(clamp(dot(normal, h), 0.0, 1.0), specHardness);
+        if (dotValue < 0.0) blinnPhong = 0.0;
+
+        // TODO: Attenuate by distance?
+
+        float light = ambient + (1.0 - ambient) * blinnPhong;
         fragColor = vec4(light * diffuse, 1.0);
     }
 `;
