@@ -68,7 +68,6 @@ export class ClothDemo extends Demo {
             vertexShader: vertexShader,
             fragmentShader: fragmentShader,
             side: DoubleSide,
-            wireframe: true,
         });
         this.material.uniforms.viewSize = new Uniform(this.dimensions);
         this.material.uniforms.clothDimensions = new Uniform(this.clothDimensions);
@@ -274,6 +273,9 @@ const vertexShader = glsl`
     uniform ivec2 clothDimensions;
     uniform sampler2D positionTexture;
 
+    varying vec3 vPosition;
+    varying vec3 vNormal;
+
     vec2 aspectCorrectInv(vec2 v, float aspect) {
         if (aspect < 1.0) v.x /= aspect;
         else v.y *= aspect;
@@ -281,24 +283,46 @@ const vertexShader = glsl`
     }
 
     void main() {
-        float aspect = viewSize.x / viewSize.y;
-
         ivec2 coord = ivec2(gl_VertexID % clothDimensions.x, gl_VertexID / clothDimensions.x);
-        vec3 pos = texelFetch(positionTexture, coord, 0).rgb;
+        vec3 p0 = texelFetch(positionTexture, coord, 0).rgb;
 
-        // TODO: Is aspect correction needed?
-        //state.rg = aspectCorrectInv(state.rg, aspect);
+        vec3 pw = normalize(texelFetch(positionTexture, coord + ivec2(-1, 0), 0).rgb - p0);
+        vec3 pe = normalize(texelFetch(positionTexture, coord + ivec2(1, 0), 0).rgb - p0);
+        vec3 pn = normalize(texelFetch(positionTexture, coord + ivec2(0, -1), 0).rgb - p0);
+        vec3 ps = normalize(texelFetch(positionTexture, coord + ivec2(0, 1), 0).rgb - p0);
 
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+        vec3 pHor = pw;
+        if (coord.x < 2) pHor = -pe;
+        vec3 pVer = pn;
+        if (coord.y < 2) pVer = -ps;
+
+        vec3 n = vec3(0.0);
+        if (coord.x > 0)                        n += cross(pw, -pVer);
+        if (coord.x < clothDimensions.x - 1)    n += cross(pe, pVer);
+        if (coord.y > 0)                        n += cross(pn, pHor);
+        if (coord.y < clothDimensions.y - 1)    n += cross(ps, -pHor);
+        n = normalize(n);
+
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(p0, 1.0);
+        vPosition = p0;
+        vNormal = n;
     }
 `;
 
 const fragmentShader = glsl`
     precision highp float;
 
+    varying vec3 vPosition;
+    varying vec3 vNormal;
+
     out vec4 fragColor;
 
     void main() {
-        fragColor = vec4(0.0, 0.3, 0.1, 1.0);
+        vec3 diffuse = vec3(0.0, 0.3, 0.1);
+        vec3 lightDir = normalize(vec3(-0.2, 0.3, -0.7));
+        vec3 camDir = normalize(cameraPosition - vPosition);
+        float dotValue = dot(vNormal, camDir);
+        float light = 0.2 + 0.8 * abs(dotValue); // TODO: Something better
+        fragColor = vec4(light * diffuse, 1.0);
     }
 `;
