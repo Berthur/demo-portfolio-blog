@@ -121,7 +121,8 @@ export class ClothDemo extends Demo {
         return t;
     }
 
-    private updateUniforms(delta: number): void {
+    private updateUniforms(time: number, delta: number): void {
+        this.computePass.uniforms.time.value = time;
         this.computePass.uniforms.delta.value = delta;
         this.computePass.uniforms.velocityTexture.value = this.currStateTarget.textures[1];
         this.material.uniforms.positionTexture.value = this.nextStateTarget.textures[0];
@@ -158,7 +159,7 @@ export class ClothDemo extends Demo {
             this.currStateTarget = this.nextStateTarget;
             this.nextStateTarget = tmp;
 
-            this.updateUniforms(d);
+            this.updateUniforms(t1 / 1000, d);
 
             this.composer.readBuffer = this.currStateTarget;
             this.composer.writeBuffer = this.nextStateTarget;
@@ -186,6 +187,7 @@ const ComputeShader = {
     name: 'ComputeShader',
     uniforms: {
         viewSize: { value: new Vector2(1, 1) },
+        time: { value: 0 },
         delta: { value: 0 },
         damping: { value: 1 },
         clothDimensions: { value: new Vector2(1, 1) },
@@ -207,9 +209,10 @@ const ComputeShader = {
 
         #define SQRT_2 1.4142135623730951
 
+        uniform float time;
+        uniform float delta;
         uniform vec2 viewSize;
         uniform ivec2 clothDimensions;
-        uniform float delta;
         uniform float damping;
         uniform vec2 mousePos;
         uniform sampler2D positionTexture;
@@ -223,6 +226,9 @@ const ComputeShader = {
             float maxViewSize = max(viewSize.x, viewSize.y);
             float springLength = 2.0 / float(clothDimensions.y);
             float springStrength = 400.0;
+            vec3 g = vec3(0.0, -9.8, 0.0);
+            float windStr = 3.0;
+            vec3 windDir = normalize(vec3(0.3, 0.1, 1.0));
 
             vec2 corrMousePos = 2.0 * mousePos - viewSize;
             corrMousePos.y = -corrMousePos.y;
@@ -238,7 +244,7 @@ const ComputeShader = {
             // Hang from upper corners:
             if (!(fragCoord.y == clothDimensions.y - 1 && (fragCoord.x == 0 || fragCoord.x == clothDimensions.x - 1))) {
 
-                vec3 f = vec3(0.0, -9.8, 0.0);
+                vec3 f = g + windStr * clamp(0.5 * sin(0.3 * time + 0.2) + sin(time) + 0.3 * sin(3.0 * time + 2.0), 0.0, 1.0) * windDir;
 
                 for (int j=-1; j<=1; ++j) for (int i=-1; i<=1; ++i) if (!(i == 0 && j == 0)) {
                     ivec2 fragCoord1 = fragCoord + ivec2(i, j);
@@ -321,7 +327,7 @@ const fragmentShader = glsl`
         float ambient = 0.2;
         float specHardness = 5.0;
         vec3 diffuse = vec3(0.82, 0.71, 0.41);
-        vec3 lightPos = vec3(0.5, 0.0, 0.5);
+        vec3 lightPos = vec3(0.5, 0.0, 1.0);
 
         vec3 normal = vNormal;
         if (!gl_FrontFacing) normal = -normal;
