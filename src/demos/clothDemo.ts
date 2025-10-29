@@ -1,9 +1,9 @@
-import { DataTexture, DoubleSide, FloatType, GLSL3, Mesh, PerspectiveCamera, PlaneGeometry, RGBAFormat, Scene, ShaderMaterial, Texture, Uniform, Vector2, WebGLRenderer, WebGLRenderTarget } from "three";
+import { Color, ColorManagement, DataTexture, DoubleSide, FloatType, GLSL3, Mesh, PerspectiveCamera, PlaneGeometry, RGBAFormat, Scene, ShaderMaterial, Texture, Uniform, Vector2, WebGLRenderer, WebGLRenderTarget } from "three";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { Demo } from "./demo";
-import { BooleanSetting, ButtonSetting, NumberSetting, Settings } from "../settings";
+import { BooleanSetting, ButtonSetting, ColorSetting, NumberSetting, Settings } from "../settings";
 import { glsl, } from "../utils";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
@@ -30,6 +30,8 @@ export class ClothDemo extends Demo {
 
     constructor(container: HTMLElement) {
         super(container);
+        ColorManagement.enabled = false;
+
         this.canvas = document.createElement('canvas');
         container.prepend(this.canvas);
 
@@ -73,6 +75,7 @@ export class ClothDemo extends Demo {
         this.material.uniforms.clothDimensions = new Uniform(this.clothDimensions);
         this.material.uniforms.positionTexture = new Uniform(null);
         this.material.uniforms.delta = new Uniform(0);
+        this.material.uniforms.color = new Uniform(new Color(0xd1b568));
 
         this.mesh = new Mesh();
         this.mesh.material = this.material;
@@ -183,6 +186,12 @@ export class ClothDemo extends Demo {
         settings.add(windFluctuation);
         windFluctuation.subscribe(v => {
             this.computePass.uniforms.windFluctuation.value = v;
+        });
+
+        const colorSetting = new ColorSetting('Color', '#d1b568');
+        settings.add(colorSetting);
+        colorSetting.subscribe(v => {
+            this.material.uniforms.color.value.set(v);
         });
 
         const expandButton = new ButtonSetting('Expand window', 'Minimize window', false);
@@ -342,6 +351,8 @@ const vertexShader = glsl`
 const fragmentShader = glsl`
     precision highp float;
 
+    uniform vec3 color;
+
     varying vec3 vPosition;
     varying vec3 vNormal;
 
@@ -350,7 +361,6 @@ const fragmentShader = glsl`
     void main() {
         float ambient = 0.2;
         float specHardness = 7.0;
-        vec3 diffuse = vec3(0.82, 0.71, 0.41);
         vec3 lightPos = vec3(0.5, 0.5, 2.0);
 
         vec3 normal = vNormal;
@@ -369,6 +379,6 @@ const fragmentShader = glsl`
         // TODO: Attenuate by distance?
 
         float light = ambient + (1.0 - ambient) * blinnPhong;
-        fragColor = vec4(light * diffuse, 1.0);
+        fragColor = vec4(light * color, 1.0);
     }
 `;
