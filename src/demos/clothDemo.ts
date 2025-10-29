@@ -3,7 +3,7 @@ import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { Demo } from "./demo";
-import { ButtonSetting, Settings } from "../settings";
+import { ButtonSetting, NumberSetting, Settings } from "../settings";
 import { glsl, } from "../utils";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
@@ -173,6 +173,12 @@ export class ClothDemo extends Demo {
         const settings = new Settings();
         this.container.append(settings.element);
 
+        const windStrength = new NumberSetting('Wind', 30, 0, 100, 1);
+        settings.add(windStrength);
+        windStrength.subscribe(v => {
+            this.computePass.uniforms.windStrength.value = v;
+        });
+
         const expandButton = new ButtonSetting('Expand window', 'Minimize window', false);
         settings.add(expandButton);
         expandButton.subscribe(v => {
@@ -190,6 +196,7 @@ const ComputeShader = {
         time: { value: 0 },
         delta: { value: 0 },
         damping: { value: 1 },
+        windStrength: { value: 30 },
         clothDimensions: { value: new Vector2(1, 1) },
         positionTexture: { value: null },
         velocityTexture: { value: null },
@@ -215,6 +222,7 @@ const ComputeShader = {
         uniform vec2 viewSize;
         uniform ivec2 clothDimensions;
         uniform float damping;
+        uniform float windStrength;
         uniform vec2 mousePos;
         uniform sampler2D positionTexture;
         uniform sampler2D velocityTexture;
@@ -228,7 +236,6 @@ const ComputeShader = {
             float springLength = 2.0 / float(clothDimensions.y);
             float springStrength = 400.0;
             vec3 g = vec3(0.0, -9.8, 0.0);
-            float windStr = 30.0;
             vec3 windDir = normalize(vec3(0.3, 0.1, 1.0));
 
             vec2 corrMousePos = 2.0 * mousePos - viewSize;
@@ -264,7 +271,7 @@ const ComputeShader = {
 
                 areaApprox /= 8.0;
                 areaApprox = areaApprox * areaApprox * PI;
-                f += areaApprox * windStr * clamp(0.5 * sin(0.3 * time + 0.2) + sin(time) + 0.3 * sin(3.0 * time + 2.0), 0.0, 1.0) * windDir;
+                f += areaApprox * windStrength * clamp(0.5 * sin(0.3 * time + 0.2) + sin(time) + 0.3 * sin(3.0 * time + 2.0), 0.0, 1.0) * windDir;
 
                 float dmp = 0.01;
 
@@ -334,7 +341,7 @@ const fragmentShader = glsl`
         float ambient = 0.2;
         float specHardness = 7.0;
         vec3 diffuse = vec3(0.82, 0.71, 0.41);
-        vec3 lightPos = vec3(0.5, 0.0, 1.5);
+        vec3 lightPos = vec3(0.5, 0.5, 2.0);
 
         vec3 normal = vNormal;
         if (!gl_FrontFacing) normal = -normal;
