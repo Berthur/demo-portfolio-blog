@@ -207,6 +207,7 @@ const ComputeShader = {
     fragmentShader: glsl`
         precision highp float;
 
+        #define PI 3.14159265359
         #define SQRT_2 1.4142135623730951
 
         uniform float time;
@@ -227,7 +228,7 @@ const ComputeShader = {
             float springLength = 2.0 / float(clothDimensions.y);
             float springStrength = 400.0;
             vec3 g = vec3(0.0, -9.8, 0.0);
-            float windStr = 3.0;
+            float windStr = 30.0;
             vec3 windDir = normalize(vec3(0.3, 0.1, 1.0));
 
             vec2 corrMousePos = 2.0 * mousePos - viewSize;
@@ -244,7 +245,8 @@ const ComputeShader = {
             // Hang from upper corners:
             if (!(fragCoord.y == clothDimensions.y - 1 && (fragCoord.x == 0 || fragCoord.x == clothDimensions.x - 1))) {
 
-                vec3 f = g + windStr * clamp(0.5 * sin(0.3 * time + 0.2) + sin(time) + 0.3 * sin(3.0 * time + 2.0), 0.0, 1.0) * windDir;
+                float areaApprox = 0.0;
+                vec3 f = g;
 
                 for (int j=-1; j<=1; ++j) for (int i=-1; i<=1; ++i) if (!(i == 0 && j == 0)) {
                     ivec2 fragCoord1 = fragCoord + ivec2(i, j);
@@ -256,8 +258,13 @@ const ComputeShader = {
                         float sr = springLength;
                         if (!(i == 0 || j == 0)) sr *= SQRT_2;
                         f += springStrength * (r - sr) * dir;
+                        areaApprox += r;
                     }
                 }
+
+                areaApprox /= 8.0;
+                areaApprox = areaApprox * areaApprox * PI;
+                f += areaApprox * windStr * clamp(0.5 * sin(0.3 * time + 0.2) + sin(time) + 0.3 * sin(3.0 * time + 2.0), 0.0, 1.0) * windDir;
 
                 float dmp = 0.01;
 
@@ -325,9 +332,9 @@ const fragmentShader = glsl`
 
     void main() {
         float ambient = 0.2;
-        float specHardness = 5.0;
+        float specHardness = 7.0;
         vec3 diffuse = vec3(0.82, 0.71, 0.41);
-        vec3 lightPos = vec3(0.5, 0.0, 1.0);
+        vec3 lightPos = vec3(0.5, 0.0, 1.5);
 
         vec3 normal = vNormal;
         if (!gl_FrontFacing) normal = -normal;
