@@ -3,7 +3,7 @@ import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { Demo } from "./demo";
-import { ButtonSetting, NumberSetting, Settings } from "../settings";
+import { BooleanSetting, ButtonSetting, NumberSetting, Settings } from "../settings";
 import { glsl, } from "../utils";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
@@ -173,10 +173,16 @@ export class ClothDemo extends Demo {
         const settings = new Settings();
         this.container.append(settings.element);
 
-        const windStrength = new NumberSetting('Wind', 30, 0, 100, 1);
+        const windStrength = new NumberSetting('Wind', 30, -100, 100, 1);
         settings.add(windStrength);
         windStrength.subscribe(v => {
             this.computePass.uniforms.windStrength.value = v;
+        });
+
+        const windFluctuation = new BooleanSetting('Wind fluctuation', true);
+        settings.add(windFluctuation);
+        windFluctuation.subscribe(v => {
+            this.computePass.uniforms.windFluctuation.value = v;
         });
 
         const expandButton = new ButtonSetting('Expand window', 'Minimize window', false);
@@ -197,6 +203,7 @@ const ComputeShader = {
         delta: { value: 0 },
         damping: { value: 1 },
         windStrength: { value: 30 },
+        windFluctuation: { value: true },
         clothDimensions: { value: new Vector2(1, 1) },
         positionTexture: { value: null },
         velocityTexture: { value: null },
@@ -223,6 +230,7 @@ const ComputeShader = {
         uniform ivec2 clothDimensions;
         uniform float damping;
         uniform float windStrength;
+        uniform bool windFluctuation;
         uniform vec2 mousePos;
         uniform sampler2D positionTexture;
         uniform sampler2D velocityTexture;
@@ -271,7 +279,9 @@ const ComputeShader = {
 
                 areaApprox /= 8.0;
                 areaApprox = areaApprox * areaApprox * PI;
-                f += areaApprox * windStrength * clamp(0.5 * sin(0.3 * time + 0.2) + sin(time) + 0.3 * sin(3.0 * time + 2.0), 0.0, 1.0) * windDir;
+                float wt = 1.0;
+                if (windFluctuation) wt = clamp(0.5 * sin(0.3 * time + 0.2) + sin(time) + 0.3 * sin(3.0 * time + 2.0), 0.0, 1.0);
+                f += areaApprox * windStrength * wt * windDir;
 
                 float dmp = 0.01;
 
