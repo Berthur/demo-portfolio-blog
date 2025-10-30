@@ -9,7 +9,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 export class ClothDemo extends Demo {
     private readonly dimensions = new Vector2(1, 1);
-    private readonly clothDimensions = new Vector2(10, 10);
+    private readonly clothDimensions = new Vector2(20, 20);
     private mousePos = new Vector2();
 
     private readonly canvas: HTMLCanvasElement;
@@ -132,6 +132,7 @@ export class ClothDemo extends Demo {
     }
 
     start(): void {
+        this.t0 = performance.now();
         (() => this.frame())();
     }
 
@@ -151,23 +152,25 @@ export class ClothDemo extends Demo {
     private t0 = 0;
     frame(): void {
         const t1 = performance.now();
-        const delta = Math.min(t1 - this.t0, 200);
-        this.t0 = t1;
+        const delta = Math.min(t1 - this.t0, 60);
 
         // TODO: Prevent rendering between steps
-        const steps = 10;
+        const steps = 20;
+        this.computePass.uniforms.damping.value = 0.15 / steps;
         for (let i=0; i<steps; ++i) {
             const d = delta / steps;
             const tmp = this.currStateTarget;
             this.currStateTarget = this.nextStateTarget;
             this.nextStateTarget = tmp;
 
-            this.updateUniforms(t1 / 1000, d);
+            this.updateUniforms((this.t0 + i * d) / 1000, d);
 
             this.composer.readBuffer = this.currStateTarget;
             this.composer.writeBuffer = this.nextStateTarget;
             this.composer.render();
         }
+
+        this.t0 = t1;
 
         requestAnimationFrame(() => { this.frame() });
     }
@@ -176,7 +179,7 @@ export class ClothDemo extends Demo {
         const settings = new Settings();
         this.container.append(settings.element);
 
-        const windStrength = new NumberSetting('Wind', 30, -100, 100, 1);
+        const windStrength = new NumberSetting('Wind', 1.5, -5, 5, 0.1);
         settings.add(windStrength);
         windStrength.subscribe(v => {
             this.computePass.uniforms.windStrength.value = v;
@@ -210,8 +213,8 @@ const ComputeShader = {
         viewSize: { value: new Vector2(1, 1) },
         time: { value: 0 },
         delta: { value: 0 },
-        damping: { value: 1 },
-        windStrength: { value: 30 },
+        damping: { value: 0.01 },
+        windStrength: { value: 2 },
         windFluctuation: { value: true },
         clothDimensions: { value: new Vector2(1, 1) },
         positionTexture: { value: null },
@@ -251,7 +254,7 @@ const ComputeShader = {
             ivec2 fragCoord = ivec2(gl_FragCoord.xy);
             float maxViewSize = max(viewSize.x, viewSize.y);
             float springLength = 2.0 / float(clothDimensions.y);
-            float springStrength = 400.0;
+            float springStrength = 2000.0;
             vec3 g = vec3(0.0, -9.8, 0.0);
             vec3 windDir = normalize(vec3(0.3, 0.1, 1.0));
 
@@ -290,13 +293,11 @@ const ComputeShader = {
                 areaApprox = areaApprox * areaApprox * PI;
                 float wt = 1.0;
                 if (windFluctuation) wt = clamp(0.5 * sin(0.3 * time + 0.2) + sin(time) + 0.3 * sin(3.0 * time + 2.0), 0.0, 1.0);
-                f += areaApprox * windStrength * wt * windDir;
-
-                float dmp = 0.01;
+                f += areaApprox / (springLength * springLength) * windStrength * wt * windDir;
 
                 vec3 a = f;
-                p1 = p + (1.0 - dmp) * (d*v + 0.5*d*d*a);
-                v1 = (1.0 - dmp) * (v + d * a);
+                p1 = p + (1.0 - damping) * (d*v + 0.5*d*d*a);
+                v1 = (1.0 - damping) * (v + d * a);
             }
 
             outPosition = vec4(p1, 0.0);
