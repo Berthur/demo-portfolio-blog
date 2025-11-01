@@ -325,22 +325,26 @@ const vertexShader = glsl`
     void main() {
         ivec2 coord = ivec2(gl_VertexID % clothDimensions.x, gl_VertexID / clothDimensions.x);
         vec3 p0 = texelFetch(positionTexture, coord, 0).rgb;
-
-        vec3 pw = normalize(texelFetch(positionTexture, coord + ivec2(-1, 0), 0).rgb - p0);
-        vec3 pe = normalize(texelFetch(positionTexture, coord + ivec2(1, 0), 0).rgb - p0);
-        vec3 pn = normalize(texelFetch(positionTexture, coord + ivec2(0, -1), 0).rgb - p0);
-        vec3 ps = normalize(texelFetch(positionTexture, coord + ivec2(0, 1), 0).rgb - p0);
-
-        vec3 pHor = pw;
-        if (coord.x < 2) pHor = -pe;
-        vec3 pVer = pn;
-        if (coord.y < 2) pVer = -ps;
-
         vec3 n = vec3(0.0);
-        if (coord.x > 0)                        n += cross(pw, -pVer);
-        if (coord.x < clothDimensions.x - 1)    n += cross(pe, pVer);
-        if (coord.y > 0)                        n += cross(pn, pHor);
-        if (coord.y < clothDimensions.y - 1)    n += cross(ps, -pHor);
+
+        vec3 pn   = texelFetch(positionTexture, coord + ivec2(0, -1), 0).rgb - p0;
+        vec3 pne  = texelFetch(positionTexture, coord + ivec2(1, -1), 0).rgb - p0;
+        vec3 pe   = texelFetch(positionTexture, coord + ivec2(1,  0), 0).rgb - p0;
+        vec3 pse  = texelFetch(positionTexture, coord + ivec2(1,  1), 0).rgb - p0;
+        vec3 ps   = texelFetch(positionTexture, coord + ivec2(0,  1), 0).rgb - p0;
+        vec3 psw  = texelFetch(positionTexture, coord + ivec2(-1, 1), 0).rgb - p0;
+        vec3 pw   = texelFetch(positionTexture, coord + ivec2(-1, 0), 0).rgb - p0;
+        vec3 pnw  = texelFetch(positionTexture, coord + ivec2(-1,-1), 0).rgb - p0;
+
+        if (coord.x < clothDimensions.x - 1 && coord.y > 0)                       n += cross(pne, pn);
+        if (coord.x < clothDimensions.x - 1 && coord.y > 0)                       n += cross(pe, pne);
+        if (coord.x < clothDimensions.x - 1 && coord.y < clothDimensions.y - 1)   n += cross(pse, pe);
+        if (coord.x < clothDimensions.x - 1 && coord.y < clothDimensions.y - 1)   n += cross(ps, pse);
+        if (coord.x > 0 && coord.y < clothDimensions.y - 1)                       n += cross(psw, ps);
+        if (coord.x > 0 && coord.y < clothDimensions.y - 1)                       n += cross(pw, psw);
+        if (coord.x > 0 && coord.y > 0)                                           n += cross(pnw, pw);
+        if (coord.x > 0 && coord.y > 0)                                           n += cross(pn, pnw);
+
         n = normalize(n);
 
         gl_Position = projectionMatrix * modelViewMatrix * vec4(p0, 1.0);
@@ -362,9 +366,9 @@ const fragmentShader = glsl`
     void main() {
         float ambient = 0.2;
         float specHardness = 7.0;
-        vec3 lightPos = vec3(0.5, 0.5, 2.0);
+        vec3 lightPos = vec3(0.5, 0.5, 5.0);
 
-        vec3 normal = vNormal;
+        vec3 normal = normalize(vNormal);
         if (!gl_FrontFacing) normal = -normal;
 
         vec3 dirToLight = lightPos - vPosition;
