@@ -389,6 +389,8 @@ const vertexShader = glsl`
 const fragmentShader = glsl`
     precision highp float;
 
+    #define NUM_LIGHTS 2
+
     uniform vec3 color;
 
     varying vec3 vPosition;
@@ -399,20 +401,32 @@ const fragmentShader = glsl`
     void main() {
         float ambient = 0.2;
         float specHardness = 7.0;
-        vec3 lightPos = vec3(0.5, 0.5, 5.0);
+        const vec3 lights[NUM_LIGHTS] = vec3[](
+            vec3(0.5, 0.5, 5.0),
+            vec3(0.0, -2.0, -5.0)
+        );
 
         vec3 normal = normalize(vNormal);
         if (!gl_FrontFacing) normal = -normal;
 
-        vec3 dirToLight = lightPos - vPosition;
-        float distToLight = length(dirToLight);
-        dirToLight /= distToLight;
         vec3 dirToCam = normalize(cameraPosition - vPosition);
+        float blinnPhong = 0.0;
 
-        vec3 h = normalize(dirToLight + dirToCam);
-        float dotValue = dot(normal, dirToLight);
-        float blinnPhong = pow(clamp(dot(normal, h), 0.0, 1.0), specHardness);
-        if (dotValue < 0.0) blinnPhong = 0.0;
+        #pragma unroll_loop_start
+        for (int i=0; i<NUM_LIGHTS; i++) {
+            vec3 dirToLight = lights[i] - vPosition;
+            float distToLight = length(dirToLight);
+            dirToLight /= distToLight;
+
+            vec3 h = normalize(dirToLight + dirToCam);
+            float res = pow(clamp(dot(normal, h), 0.0, 1.0), specHardness);
+            if (dot(normal, dirToLight) < 0.0) res = 0.0;
+
+            blinnPhong += res;
+        }
+        #pragma unroll_loop_end
+
+        blinnPhong = clamp(blinnPhong, 0.0, 1.0);
 
         // TODO: Attenuate by distance?
 
