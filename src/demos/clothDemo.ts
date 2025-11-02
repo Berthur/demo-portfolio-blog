@@ -84,6 +84,22 @@ export class ClothDemo extends Demo {
         this.scene.add(this.mesh);
 
         this.createSettings();
+
+
+        const gyroIndicator = document.createElement('div');
+        Object.assign(gyroIndicator.style, {
+            display: 'none',
+            position: 'fixed',
+            color: 'red',
+            top: 0,
+            left: 0,
+        });
+        document.body.append(gyroIndicator);
+
+        window.addEventListener("deviceorientation", e  => {
+            gyroIndicator.innerText = `${ e.alpha }\n${ e.beta }\n${ e.gamma }`;
+            gyroIndicator.style.display = 'block';
+        });
     }
 
     onResize(width: number, height: number) {
