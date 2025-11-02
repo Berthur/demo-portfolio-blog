@@ -11,6 +11,7 @@ export class ClothDemo extends Demo {
     private readonly dimensions = new Vector2(1, 1);
     private readonly clothDimensions = new Vector2(20, 20);
     private mousePos = new Vector2();
+    private simulationSteps = 20;
 
     private readonly canvas: HTMLCanvasElement;
     private readonly renderer: WebGLRenderer;
@@ -186,10 +187,9 @@ export class ClothDemo extends Demo {
         const delta = Math.min(t1 - this.t0, 60);
 
         // TODO: Prevent rendering between steps
-        const steps = 20;
-        this.computePass.uniforms.damping.value = 0.15 / steps;
-        for (let i=0; i<steps; ++i) {
-            const d = delta / steps;
+        this.computePass.uniforms.damping.value = 0.15 / this.simulationSteps;
+        for (let i=0; i<this.simulationSteps; ++i) {
+            const d = delta / this.simulationSteps;
             const tmp = this.currStateTarget;
             this.currStateTarget = this.nextStateTarget;
             this.nextStateTarget = tmp;
@@ -220,6 +220,12 @@ export class ClothDemo extends Demo {
         settings.add(windFluctuation);
         windFluctuation.subscribe(v => {
             this.computePass.uniforms.windFluctuation.value = v;
+        });
+
+        const steps = new NumberSetting('Simulation steps', 20, 5, 100, 1);
+        settings.add(steps);
+        steps.subscribe(v => {
+            this.simulationSteps = v;
         });
 
         const colorSetting = new ColorSetting('Color', '#d1b568');
