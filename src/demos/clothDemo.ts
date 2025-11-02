@@ -315,7 +315,7 @@ const ComputeShader = {
 
             vec3 p = texelFetch(positionTexture, fragCoord, 0).rgb;
             vec3 v = texelFetch(velocityTexture, fragCoord, 0).rgb;
-            float d = 0.001 * delta;
+            float dt = 0.001 * delta;
 
             vec3 v1 = v;
             vec3 p1 = p;
@@ -348,8 +348,8 @@ const ComputeShader = {
 
                 // Verlet integration (with some cheating):
                 vec3 a = f;
-                p1 = p + d*v + 0.5*d*d*a;
-                v1 = (1.0 - damping) * v + d * a;
+                p1 = p + dt*v + 0.5*dt*dt*a;
+                v1 = (1.0 - damping) * v + dt * a;
             }
 
             outPosition = vec4(p1, 0.0);
