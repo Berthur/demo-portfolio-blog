@@ -122,8 +122,8 @@ export class ClothDemo extends Demo {
         this.renderer.setSize(width, height);
         this.renderer.setPixelRatio(devicePixelRatio);
         this.renderer.getSize(this.dimensions).multiplyScalar(devicePixelRatio);
-
-        // TODO: Update camera aspect
+        this.camera.aspect = width / height;
+        this.camera.updateProjectionMatrix();
     }
     
     private initializeTextures(): void {
@@ -354,12 +354,6 @@ const vertexShader = glsl`
 
     varying vec3 vPosition;
     varying vec3 vNormal;
-
-    vec2 aspectCorrectInv(vec2 v, float aspect) {
-        if (aspect < 1.0) v.x /= aspect;
-        else v.y *= aspect;
-        return v;
-    }
 
     void main() {
         ivec2 coord = ivec2(gl_VertexID % clothDimensions.x, gl_VertexID / clothDimensions.x);
