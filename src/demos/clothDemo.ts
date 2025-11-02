@@ -1,4 +1,4 @@
-import { Color, ColorManagement, DataTexture, DoubleSide, FloatType, GLSL3, Mesh, PerspectiveCamera, PlaneGeometry, RGBAFormat, Scene, ShaderMaterial, Texture, Uniform, Vector2, WebGLRenderer, WebGLRenderTarget } from "three";
+import { Color, ColorManagement, DataTexture, DoubleSide, FloatType, GLSL3, Mesh, PerspectiveCamera, PlaneGeometry, RGBAFormat, Scene, ShaderMaterial, Texture, Uniform, Vector2, Vector3, WebGLRenderer, WebGLRenderTarget } from "three";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
@@ -86,30 +86,34 @@ export class ClothDemo extends Demo {
         this.createSettings();
 
 
-        const gyroIndicator = document.createElement('div');
-        Object.assign(gyroIndicator.style, {
-            display: 'none',
-            position: 'fixed',
-            color: 'red',
-            top: 0,
-            left: 0,
-        });
-        document.body.append(gyroIndicator);
+        // const gyroIndicator = document.createElement('div');
+        // Object.assign(gyroIndicator.style, {
+        //     display: 'none',
+        //     position: 'fixed',
+        //     color: 'red',
+        //     top: 0,
+        //     left: 0,
+        // });
+        // document.body.append(gyroIndicator);
 
         // window.addEventListener("deviceorientation", e  => {
         //     gyroIndicator.innerText = `${ e.alpha }\n${ e.beta }\n${ e.gamma }`;
         //     gyroIndicator.style.display = 'block';
         // });
 
+        const zAxis = new Vector3(0, 0, 1);
         window.addEventListener('devicemotion', e => {
-            console.log(e);
+            //console.log(e);
             const ax = e.accelerationIncludingGravity.x;
             const ay = e.accelerationIncludingGravity.y;
             const az = e.accelerationIncludingGravity.z;
 
-            const angle = Math.atan2(ax, az);
-            gyroIndicator.innerText = `${ ax }\n${ ay }\n${ az }\n${ angle }`;
-            gyroIndicator.style.display = 'block';
+            const angle = Math.atan2(ax, az) || 0;
+
+            this.computePass.uniforms.gravity.value.set(0, -9.8, 0).applyAxisAngle(zAxis, angle);
+
+            // gyroIndicator.innerText = `${ ax }\n${ ay }\n${ az }\n${ angle }`;
+            // gyroIndicator.style.display = 'block';
         });
     }
 
@@ -241,6 +245,7 @@ const ComputeShader = {
         time: { value: 0 },
         delta: { value: 0 },
         damping: { value: 0.01 },
+        gravity: { value: new Vector3(0, -9.8, 0) },
         windStrength: { value: 2 },
         windFluctuation: { value: true },
         clothDimensions: { value: new Vector2(1, 1) },
@@ -268,6 +273,7 @@ const ComputeShader = {
         uniform vec2 viewSize;
         uniform ivec2 clothDimensions;
         uniform float damping;
+        uniform vec3 gravity;
         uniform float windStrength;
         uniform bool windFluctuation;
         uniform vec2 mousePos;
@@ -282,7 +288,7 @@ const ComputeShader = {
             float maxViewSize = max(viewSize.x, viewSize.y);
             float springLength = 2.0 / float(clothDimensions.y);
             float springStrength = 2000.0;
-            vec3 g = vec3(0.0, -9.8, 0.0);
+            vec3 g = gravity;
             vec3 windDir = normalize(vec3(0.3, 0.1, 1.0));
 
             vec2 corrMousePos = 2.0 * mousePos - viewSize;
