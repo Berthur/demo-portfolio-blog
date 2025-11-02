@@ -96,8 +96,19 @@ export class ClothDemo extends Demo {
         });
         document.body.append(gyroIndicator);
 
-        window.addEventListener("deviceorientation", e  => {
-            gyroIndicator.innerText = `${ e.alpha }\n${ e.beta }\n${ e.gamma }`;
+        // window.addEventListener("deviceorientation", e  => {
+        //     gyroIndicator.innerText = `${ e.alpha }\n${ e.beta }\n${ e.gamma }`;
+        //     gyroIndicator.style.display = 'block';
+        // });
+
+        window.addEventListener('devicemotion', e => {
+            console.log(e);
+            const ax = e.accelerationIncludingGravity.x;
+            const ay = e.accelerationIncludingGravity.y;
+            const az = e.accelerationIncludingGravity.z;
+
+            const angle = Math.atan2(ax, az);
+            gyroIndicator.innerText = `${ ax }\n${ ay }\n${ az }\n${ angle }`;
             gyroIndicator.style.display = 'block';
         });
     }
