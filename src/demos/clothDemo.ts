@@ -12,6 +12,7 @@ export class ClothDemo extends Demo {
     private readonly clothDimensions = new Vector2(20, 20);
     private mousePos = new Vector2();
     private simulationSteps = 20;
+    private dampingPerFrame = 0.15;
 
     private readonly canvas: HTMLCanvasElement;
     private readonly renderer: WebGLRenderer;
@@ -187,7 +188,7 @@ export class ClothDemo extends Demo {
         const delta = Math.min(t1 - this.t0, 60);
 
         // TODO: Prevent rendering between steps
-        this.computePass.uniforms.damping.value = 0.15 / this.simulationSteps;
+        this.computePass.uniforms.damping.value = this.dampingPerFrame / this.simulationSteps;
         for (let i=0; i<this.simulationSteps; ++i) {
             const d = delta / this.simulationSteps;
             const tmp = this.currStateTarget;
@@ -222,10 +223,16 @@ export class ClothDemo extends Demo {
             this.computePass.uniforms.windFluctuation.value = v;
         });
 
-        const steps = new NumberSetting('Simulation steps', 20, 5, 100, 1);
+        const steps = new NumberSetting('Simulation steps', 20, 10, 100, 1);
         settings.add(steps);
         steps.subscribe(v => {
             this.simulationSteps = v;
+        });
+
+        const damping = new NumberSetting('Damping', 0.15, 0, 1, 0.01);
+        settings.add(damping);
+        damping.subscribe(v => {
+            this.dampingPerFrame = v;
         });
 
         const colorSetting = new ColorSetting('Color', '#d1b568');
@@ -289,6 +296,11 @@ const ComputeShader = {
         layout(location = 0) out vec4 outPosition;
         layout(location = 1) out vec4 outVelocity;
 
+        float windFn(float time) {
+            if (windFluctuation) return clamp(0.5 * sin(0.3 * time + 0.2) + sin(time) + 0.3 * sin(3.0 * time + 2.0), 0.0, 1.0);
+            else return 1.0;
+        }
+
         void main() {
             ivec2 fragCoord = ivec2(gl_FragCoord.xy);
             float maxViewSize = max(viewSize.x, viewSize.y);
@@ -314,6 +326,7 @@ const ComputeShader = {
                 float areaApprox = 0.0;
                 vec3 f = g;
 
+                // Accumulate spring fores:
                 for (int j=-1; j<=1; ++j) for (int i=-1; i<=1; ++i) if (!(i == 0 && j == 0)) {
                     ivec2 fragCoord1 = fragCoord + ivec2(i, j);
                     if (fragCoord1.x >= 0 && fragCoord1.x < clothDimensions.x && fragCoord1.y >= 0 && fragCoord1.y < clothDimensions.y) {
@@ -328,15 +341,15 @@ const ComputeShader = {
                     }
                 }
 
+                // Add wind force:
                 areaApprox /= 8.0;
                 areaApprox = areaApprox * areaApprox * PI;
-                float wt = 1.0;
-                if (windFluctuation) wt = clamp(0.5 * sin(0.3 * time + 0.2) + sin(time) + 0.3 * sin(3.0 * time + 2.0), 0.0, 1.0);
-                f += areaApprox / (springLength * springLength) * windStrength * wt * windDir;
+                f += areaApprox / (springLength * springLength) * windStrength * windFn(time) * windDir;
 
+                // Verlet integration (with some cheating):
                 vec3 a = f;
-                p1 = p + (1.0 - damping) * (d*v + 0.5*d*d*a);
-                v1 = (1.0 - damping) * (v + d * a);
+                p1 = p + d*v + 0.5*d*d*a;
+                v1 = (1.0 - damping) * v + d * a;
             }
 
             outPosition = vec4(p1, 0.0);
