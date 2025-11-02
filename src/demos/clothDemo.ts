@@ -110,7 +110,7 @@ export class ClothDemo extends Demo {
 
             const angle = Math.atan2(ax, az) || 0;
 
-            this.computePass.uniforms.gravity.value.set(0, -9.8, 0).applyAxisAngle(zAxis, angle);
+            this.computePass.uniforms.gravity.value.set(0, -9.8, 0).applyAxisAngle(zAxis, -angle);
 
             // gyroIndicator.innerText = `${ ax }\n${ ay }\n${ az }\n${ angle }`;
             // gyroIndicator.style.display = 'block';
