@@ -189,7 +189,7 @@ export class ClothDemo extends Demo {
         const settings = new Settings();
         this.container.append(settings.element);
 
-        const windStrength = new NumberSetting('Wind', 1.5, -5, 5, 0.1, v => v.toFixed(1));
+        const windStrength = new NumberSetting('Wind', 1, -3, 3, 0.1, v => v.toFixed(1));
         settings.add(windStrength);
         windStrength.subscribe(v => {
             this.computePass.uniforms.windStrength.value = v;
@@ -235,9 +235,10 @@ const ComputeShader = {
         viewSize: { value: new Vector2(1, 1) },
         time: { value: 0 },
         delta: { value: 0 },
-        damping: { value: 0.01 },
+        springStrength: { value: 1500 },
+        damping: { value: 10 },
         gravity: { value: new Vector3(0, -9.8, 0) },
-        windStrength: { value: 2 },
+        windStrength: { value: 1 },
         windFluctuation: { value: true },
         clothDimensions: { value: new Vector2(1, 1) },
         positionTexture: { value: null },
@@ -268,6 +269,7 @@ const ComputeShader = {
         uniform float windStrength;
         uniform bool windFluctuation;
         uniform vec2 mousePos;
+        uniform float springStrength;
         uniform sampler2D positionTexture;
         uniform sampler2D velocityTexture;
 
@@ -279,11 +281,27 @@ const ComputeShader = {
             else return 1.0;
         }
 
+        void addSpringForce(in vec3 p, int i, int j, inout vec3 f, inout float a) {
+            float springLength = 2.0 / float(clothDimensions.y);
+
+            ivec2 coord0 = ivec2(gl_FragCoord.xy);
+            ivec2 coord1 = coord0 + ivec2(i, j);
+
+            if (coord1.x >= 0 && coord1.x < clothDimensions.x && coord1.y >= 0 && coord1.y < clothDimensions.y) {
+                vec3 p1 = texelFetch(positionTexture, coord1, 0).rgb;
+                vec3 dir = p1 - p;
+                float r = length(dir);
+                dir /= r;
+                float sr = springLength * length(vec2(i, j));
+                f += springStrength * (r - sr) * dir;
+                a += r;
+            }
+        }
+
         void main() {
             ivec2 fragCoord = ivec2(gl_FragCoord.xy);
             float maxViewSize = max(viewSize.x, viewSize.y);
             float springLength = 2.0 / float(clothDimensions.y);
-            float springStrength = 2000.0;
             vec3 g = gravity;
             vec3 windDir = normalize(vec3(0.3, 0.1, 1.0));
 
@@ -304,20 +322,16 @@ const ComputeShader = {
                 float areaApprox = 0.0;
                 vec3 f = g;
 
-                // Accumulate spring fores:
-                for (int j=-1; j<=1; ++j) for (int i=-1; i<=1; ++i) if (!(i == 0 && j == 0)) {
-                    ivec2 fragCoord1 = fragCoord + ivec2(i, j);
-                    if (fragCoord1.x >= 0 && fragCoord1.x < clothDimensions.x && fragCoord1.y >= 0 && fragCoord1.y < clothDimensions.y) {
-                        vec3 p1 = texelFetch(positionTexture, fragCoord1, 0).rgb;
-                        vec3 dir = p1 - p;
-                        float r = length(dir);
-                        dir /= r;
-                        float sr = springLength;
-                        if (!(i == 0 || j == 0)) sr *= SQRT_2;
-                        f += springStrength * (r - sr) * dir;
-                        areaApprox += r;
-                    }
-                }
+                // Accumulate spring forces:
+                for (int j=-1; j<=1; ++j)
+                    for (int i=-1; i<=1; ++i)
+                        if (!(i == 0 && j == 0))
+                            addSpringForce(p, i, j, f, areaApprox);
+                // Flexion springs:
+                addSpringForce(p, -2,   0,  f, areaApprox);
+                addSpringForce(p, 2,    0,  f, areaApprox);
+                addSpringForce(p, 0,    -2, f, areaApprox);
+                addSpringForce(p, 0,    2,  f, areaApprox);
 
                 // Add wind force:
                 areaApprox /= 8.0;
