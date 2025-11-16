@@ -211,7 +211,7 @@ export class ClothDemo extends Demo {
         const settings = new Settings();
         this.container.append(settings.element);
 
-        const windStrength = new NumberSetting('Wind', 1.5, -5, 5, 0.1);
+        const windStrength = new NumberSetting('Wind', 1.5, -5, 5, 0.1, v => v.toFixed(1));
         settings.add(windStrength);
         windStrength.subscribe(v => {
             this.computePass.uniforms.windStrength.value = v;
