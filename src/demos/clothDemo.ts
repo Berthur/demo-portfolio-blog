@@ -87,35 +87,14 @@ export class ClothDemo extends Demo {
 
         this.createSettings();
 
-
-        // const gyroIndicator = document.createElement('div');
-        // Object.assign(gyroIndicator.style, {
-        //     display: 'none',
-        //     position: 'fixed',
-        //     color: 'red',
-        //     top: 0,
-        //     left: 0,
-        // });
-        // document.body.append(gyroIndicator);
-
-        // window.addEventListener("deviceorientation", e  => {
-        //     gyroIndicator.innerText = `${ e.alpha }\n${ e.beta }\n${ e.gamma }`;
-        //     gyroIndicator.style.display = 'block';
-        // });
-
         const zAxis = new Vector3(0, 0, 1);
         window.addEventListener('devicemotion', e => {
-            //console.log(e);
             const ax = e.accelerationIncludingGravity.x;
             const ay = e.accelerationIncludingGravity.y;
             const az = e.accelerationIncludingGravity.z;
 
             const angle = Math.atan2(ax, az) || 0;
-
             this.computePass.uniforms.gravity.value.set(0, -9.8, 0).applyAxisAngle(zAxis, -angle);
-
-            // gyroIndicator.innerText = `${ ax }\n${ ay }\n${ az }\n${ angle }`;
-            // gyroIndicator.style.display = 'block';
         });
     }
 
@@ -134,7 +113,6 @@ export class ClothDemo extends Demo {
         for (let i=0; i<n; ++i) {
             data[4*i    ] = 2 * (i % this.clothDimensions.x) / this.clothDimensions.x - 1;
             data[4*i + 1] = 2 * ~~(i / this.clothDimensions.x) / this.clothDimensions.y - 1;
-            data[4*i + 2] = 0.1 * Math.random() - 0.05;
         }
 
         this.positionTexture0 = new DataTexture(data, this.clothDimensions.x, this.clothDimensions.y);
