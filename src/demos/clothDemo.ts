@@ -375,20 +375,16 @@ const vertexShader = glsl`
         vec3 pn   = texelFetch(positionTexture, coord + ivec2(0, -1), 0).rgb - p0;
         vec3 pne  = texelFetch(positionTexture, coord + ivec2(1, -1), 0).rgb - p0;
         vec3 pe   = texelFetch(positionTexture, coord + ivec2(1,  0), 0).rgb - p0;
-        vec3 pse  = texelFetch(positionTexture, coord + ivec2(1,  1), 0).rgb - p0;
         vec3 ps   = texelFetch(positionTexture, coord + ivec2(0,  1), 0).rgb - p0;
         vec3 psw  = texelFetch(positionTexture, coord + ivec2(-1, 1), 0).rgb - p0;
         vec3 pw   = texelFetch(positionTexture, coord + ivec2(-1, 0), 0).rgb - p0;
-        vec3 pnw  = texelFetch(positionTexture, coord + ivec2(-1,-1), 0).rgb - p0;
 
         if (coord.x < clothDimensions.x - 1 && coord.y > 0)                       n += cross(pne, pn);
         if (coord.x < clothDimensions.x - 1 && coord.y > 0)                       n += cross(pe, pne);
-        if (coord.x < clothDimensions.x - 1 && coord.y < clothDimensions.y - 1)   n += cross(pse, pe);
-        if (coord.x < clothDimensions.x - 1 && coord.y < clothDimensions.y - 1)   n += cross(ps, pse);
+        if (coord.x < clothDimensions.x - 1 && coord.y < clothDimensions.y - 1)   n += cross(ps, pe);
         if (coord.x > 0 && coord.y < clothDimensions.y - 1)                       n += cross(psw, ps);
         if (coord.x > 0 && coord.y < clothDimensions.y - 1)                       n += cross(pw, psw);
-        if (coord.x > 0 && coord.y > 0)                                           n += cross(pnw, pw);
-        if (coord.x > 0 && coord.y > 0)                                           n += cross(pn, pnw);
+        if (coord.x > 0 && coord.y > 0)                                           n += cross(pn, pw);
 
         n = normalize(n);
 
