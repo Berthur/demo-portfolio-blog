@@ -189,7 +189,7 @@ export class ClothDemo extends Demo {
         const settings = new Settings();
         this.container.append(settings.element);
 
-        const windStrength = new NumberSetting('Wind', 1, -3, 3, 0.1, v => v.toFixed(1));
+        const windStrength = new NumberSetting('Wind', 1.5, -5, 5, 0.1, v => v.toFixed(1));
         settings.add(windStrength);
         windStrength.subscribe(v => {
             this.computePass.uniforms.windStrength.value = v;
@@ -238,7 +238,7 @@ const ComputeShader = {
         springStrength: { value: 1500 },
         damping: { value: 10 },
         gravity: { value: new Vector3(0, -9.8, 0) },
-        windStrength: { value: 1 },
+        windStrength: { value: 1.5 },
         windFluctuation: { value: true },
         clothDimensions: { value: new Vector2(1, 1) },
         positionTexture: { value: null },
@@ -281,7 +281,7 @@ const ComputeShader = {
             else return 1.0;
         }
 
-        void addSpringForce(in vec3 p, int i, int j, inout vec3 f, inout float a) {
+        void addSpring(in vec3 p, int i, int j, inout vec3 f, inout float rSum) {
             float springLength = 2.0 / float(clothDimensions.y);
 
             ivec2 coord0 = ivec2(gl_FragCoord.xy);
@@ -294,7 +294,7 @@ const ComputeShader = {
                 dir /= r;
                 float sr = springLength * length(vec2(i, j));
                 f += springStrength * (r - sr) * dir;
-                a += r;
+                rSum += r;
             }
         }
 
@@ -319,24 +319,31 @@ const ComputeShader = {
             // Hang from upper corners:
             if (!(fragCoord.y == clothDimensions.y - 1 && (fragCoord.x == 0 || fragCoord.x == clothDimensions.x - 1))) {
 
-                float areaApprox = 0.0;
+                float rSum = 0.0;
                 vec3 f = g;
 
-                // Accumulate spring forces:
-                for (int j=-1; j<=1; ++j)
-                    for (int i=-1; i<=1; ++i)
-                        if (!(i == 0 && j == 0))
-                            addSpringForce(p, i, j, f, areaApprox);
+                // Structural springs:
+                addSpring(p, -1,  0,  f, rSum);
+                addSpring(p,  1,  0,  f, rSum);
+                addSpring(p,  0, -1,  f, rSum);
+                addSpring(p,  0,  1,  f, rSum);
+
+                // Shear springs:
+                addSpring(p, -1, -1, f, rSum);
+                addSpring(p,  1, -1, f, rSum);
+                addSpring(p, -1,  1, f, rSum);
+                addSpring(p,  1,  1, f, rSum);
+
                 // Flexion springs:
-                addSpringForce(p, -2,   0,  f, areaApprox);
-                addSpringForce(p, 2,    0,  f, areaApprox);
-                addSpringForce(p, 0,    -2, f, areaApprox);
-                addSpringForce(p, 0,    2,  f, areaApprox);
+                float tmp = 0.0;
+                addSpring(p, -2,  0, f, tmp);
+                addSpring(p,  2,  0, f, tmp);
+                addSpring(p,  0, -2, f, tmp);
+                addSpring(p,  0,  2, f, tmp);
 
                 // Add wind force:
-                areaApprox /= 8.0;
-                areaApprox = areaApprox * areaApprox * PI;
-                f += areaApprox / (springLength * springLength) * windStrength * windFn(time) * windDir;
+                float area = pow(rSum / 8.0, 2.0) * PI;
+                f += area / (springLength * springLength) * windStrength * windFn(time) * windDir;
 
                 // Verlet integration (with some cheating):
                 vec3 a = f;
