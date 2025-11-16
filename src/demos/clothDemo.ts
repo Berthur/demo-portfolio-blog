@@ -12,7 +12,7 @@ export class ClothDemo extends Demo {
     private readonly clothDimensions = new Vector2(20, 20);
     private mousePos = new Vector2();
     private simulationSteps = 20;
-    private dampingPerFrame = 0.15;
+    private damping = 10;
 
     private readonly canvas: HTMLCanvasElement;
     private readonly renderer: WebGLRenderer;
@@ -188,7 +188,7 @@ export class ClothDemo extends Demo {
         const delta = Math.min(t1 - this.t0, 60);
 
         // TODO: Prevent rendering between steps
-        this.computePass.uniforms.damping.value = this.dampingPerFrame / this.simulationSteps;
+        this.computePass.uniforms.damping.value = this.damping;
         for (let i=0; i<this.simulationSteps; ++i) {
             const d = delta / this.simulationSteps;
             const tmp = this.currStateTarget;
@@ -229,10 +229,10 @@ export class ClothDemo extends Demo {
             this.simulationSteps = v;
         });
 
-        const damping = new NumberSetting('Damping', 0.15, 0, 1, 0.01);
+        const damping = new NumberSetting('Damping', 10, 0, 100, 1);
         settings.add(damping);
         damping.subscribe(v => {
-            this.dampingPerFrame = v;
+            this.damping = v;
         });
 
         const colorSetting = new ColorSetting('Color', '#d1b568');
@@ -349,7 +349,7 @@ const ComputeShader = {
                 // Verlet integration (with some cheating):
                 vec3 a = f;
                 p1 = p + dt*v + 0.5*dt*dt*a;
-                v1 = (1.0 - damping) * v + dt * a;
+                v1 = (1.0 - damping * dt) * v + dt * a;
             }
 
             outPosition = vec4(p1, 0.0);
