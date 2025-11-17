@@ -150,16 +150,18 @@ export class ClothDemo extends Demo {
     }
 
     restart(): void {
-        console.warn("Restarting!");
+        this.positionTexture0.dispose();
+        this.positionTexture1.dispose();
+        this.velocityTexture0.dispose();
+        this.velocityTexture1.dispose();
+        this.currStateTarget.dispose();
+        this.nextStateTarget.dispose();
+        this.currStateTarget = new WebGLRenderTarget(this.clothDimensions.x, this.clothDimensions.y, { count: 2 });
+        this.nextStateTarget = new WebGLRenderTarget(this.clothDimensions.x, this.clothDimensions.y, { count: 2 });
 
-        // TODO: Dispose of textures
-        // this.currStateTarget.dispose();
-        // this.nextStateTarget.dispose();
-        // this.currStateTarget = new WebGLRenderTarget(this.clothDimensions.x, this.clothDimensions.y);
-        // this.nextStateTarget = new WebGLRenderTarget(this.clothDimensions.x, this.clothDimensions.y);
-        // this.initializeTextures();
+        this.initializeTextures();
 
-        // TODO: Restart mesh geometry
+        // TODO: Restart mesh geometry if size changes
     }
 
     private t0 = 0;
@@ -232,6 +234,13 @@ export class ClothDemo extends Demo {
         settings.add(colorSetting);
         colorSetting.subscribe(v => {
             this.material.uniforms.color.value.set(v);
+        });
+
+        const restartButton = new ButtonSetting('Restart', 'Restart', false);
+        settings.add(restartButton);
+        restartButton.subscribe(v => {
+            this.restart();
+            settings.setDefaultExpansion();
         });
 
         const expandButton = new ButtonSetting('Expand window', 'Minimize window', false);
