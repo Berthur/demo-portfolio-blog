@@ -3,9 +3,11 @@ import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { Demo } from "./demo";
-import { BooleanSetting, ButtonSetting, ColorSetting, NumberSetting, Settings } from "../settings";
+import { BooleanSetting, ButtonSetting, ColorSetting, DropdownSetting, NumberSetting, Settings } from "../settings";
 import { glsl, } from "../utils";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+
+enum AnchorOptions { None, Sheet, Flag, Sail };
 
 export class ClothDemo extends Demo {
     private readonly dimensions = new Vector2(1, 1);
@@ -201,6 +203,19 @@ export class ClothDemo extends Demo {
             this.computePass.uniforms.windFluctuation.value = v;
         });
 
+        const anchorOptionLabels = {
+            'Sheet':    AnchorOptions.Sheet,
+            'Flag':     AnchorOptions.Flag,
+            'Sail':     AnchorOptions.Sail,
+        };
+        const presetSetting = new DropdownSetting('Preset', 0, [...Object.keys(anchorOptionLabels)]);
+        settings.add(presetSetting);
+        presetSetting.subscribe(v => {
+            this.computePass.material.defines.ANCHOR_MODE =  anchorOptionLabels[v] || 0;
+            this.computePass.material.needsUpdate = true;
+            this.restart();
+        });
+
         const steps = new NumberSetting('Simulation steps', 20, 10, 100, 1);
         settings.add(steps);
         steps.subscribe(v => {
@@ -245,7 +260,7 @@ const ComputeShader = {
         velocityTexture: { value: null },
     },
     defines: {
-        BORDERS_REFLECT: false,
+        ANCHOR_MODE: 1
     },
     vertexShader: glsl`
         precision highp float;
@@ -258,7 +273,6 @@ const ComputeShader = {
         precision highp float;
 
         #define PI 3.14159265359
-        #define SQRT_2 1.4142135623730951
 
         uniform float time;
         uniform float delta;
@@ -316,8 +330,16 @@ const ComputeShader = {
             vec3 v1 = v;
             vec3 p1 = p;
 
-            // Hang from upper corners:
-            if (!(fragCoord.y == clothDimensions.y - 1 && (fragCoord.x == 0 || fragCoord.x == clothDimensions.x - 1))) {
+            // Anchor points:
+            #if ANCHOR_MODE == 1
+                if (!(fragCoord.y == clothDimensions.y - 1 && (fragCoord.x == 0 || fragCoord.x == clothDimensions.x - 1))) {
+            #elif ANCHOR_MODE == 2
+                if (!(fragCoord.x == 0)) {
+            #elif ANCHOR_MODE == 3
+                if (!((fragCoord.y == clothDimensions.y - 1) || (fragCoord.y == 0 && (fragCoord.x == 0 || fragCoord.x == clothDimensions.x - 1)))) {
+            #else
+                if (true) {
+            #endif
 
                 float rSum = 0.0;
                 vec3 f = g;
