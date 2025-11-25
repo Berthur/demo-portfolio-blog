@@ -4,6 +4,7 @@ import { ParticlesDemo } from "./demos/particlesDemo";
 import { TrafficDemo } from "./demos/trafficDemo";
 import { GameOfLifeDemo } from "./demos/gameOfLife";
 import { ClothDemo } from "./demos/clothDemo";
+import { GeneticDemo } from "./demos/geneticDemo";
 
 interface BlogEntry {
     index: number;
@@ -22,6 +23,7 @@ export class App {
         traffic: TrafficDemo,
         gameOfLife: GameOfLifeDemo,
         cloth: ClothDemo,
+        genetic: GeneticDemo,
     });
 
     constructor() {
