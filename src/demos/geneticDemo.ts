@@ -184,6 +184,8 @@ export class GeneticDemo extends Demo {
         psrAttr.needsUpdate = true;
         colorAttr.needsUpdate = true;
 
+        this.renderer.setClearColor(0xffffff);
+
         // TODO: Instead of rendering twice, render to target and copy to screen
         this.renderer.setRenderTarget(null);
         this.renderer.render(this.scene, this.camera);
