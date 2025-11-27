@@ -1,4 +1,4 @@
-import { BufferAttribute, BufferGeometry, Camera, Color, DynamicDrawUsage, GLSL3, MathUtils, OrthographicCamera, Points, Scene, ShaderLib, ShaderMaterial, Texture, TextureLoader, Uniform, Vector2, WebGLRenderer, WebGLRenderTarget } from "three";
+import { BufferAttribute, BufferGeometry, Camera, Color, DynamicDrawUsage, FloatType, GLSL3, LinearFilter, LinearMipmapLinearFilter, MathUtils, OrthographicCamera, Points, RedFormat, RGBAFormat, Scene, ShaderLib, ShaderMaterial, Texture, TextureLoader, Uniform, Vector2, WebGLRenderer, WebGLRenderTarget } from "three";
 import { Demo } from "./demo";
 import { NumberSetting, Settings } from "../settings";
 import { glsl } from "../utils";
@@ -57,6 +57,8 @@ export class GeneticDemo extends Demo {
     private targetImage: ImageData;
     private targetTexture: Texture;
 
+    private imgdata: Float32Array = new Float32Array(this.dimensions.x * this.dimensions.y);
+
     constructor(container: HTMLElement) {
         super(container);
         this.canvas = document.createElement('canvas');
@@ -94,8 +96,11 @@ export class GeneticDemo extends Demo {
         this.scene.add(this.points);
 
         this.renderTarget = new WebGLRenderTarget(this.dimensions.x, this.dimensions.y);
-        this.diffRenderTarget = new WebGLRenderTarget(this.dimensions.x, this.dimensions.y);
-        this.composer = new EffectComposer(this.renderer, this.diffRenderTarget);
+        this.diffRenderTarget = new WebGLRenderTarget(this.dimensions.x, this.dimensions.y, {
+            format: RedFormat,
+            type: FloatType,
+        });
+        this.composer = new EffectComposer(this.renderer);
         //this.copyPass = new ShaderPass(CopyShader);
         //this.copyPass.renderToScreen = true;
         this.diffPass = new ShaderPass(DiffShader, 'texture1');
@@ -104,6 +109,7 @@ export class GeneticDemo extends Demo {
         this.composer.addPass(outputPass);
         //this.composer.addPass(this.copyPass);
         this.composer.readBuffer = this.renderTarget;
+        this.composer.writeBuffer = this.diffRenderTarget;
 
         this.currError = 1.0;
 
@@ -251,17 +257,14 @@ export class GeneticDemo extends Demo {
         return imageData;
     }
 
-    private imgdata = new Uint8Array(4 * this.dimensions.x * this.dimensions.y);
     private getError(): number {
         // TODO: Downsample instead
         this.renderer.readRenderTargetPixels(this.diffRenderTarget, 0, 0, this.dimensions.x, this.dimensions.y, this.imgdata);
 
         let sum = 0;
-        for (let i=0; i<this.imgdata.length; ++i) {
-            if (i % 4 !== 3) // Ignore alpha channel
-                sum += this.imgdata[i] / 255;
-        }
-        sum /= 0.75 * this.imgdata.length;
+        for (let i=0; i<this.imgdata.length; ++i)
+            sum += this.imgdata[i];
+        sum /= this.imgdata.length;
         return sum;
     }
 
@@ -375,6 +378,8 @@ const DiffShader = {
 		}
     `,
 	fragmentShader: glsl`
+        #define SQRT_3 1.732050807568877
+
 		uniform sampler2D texture1;
         uniform sampler2D texture2;
 		varying vec2 vUv;
@@ -382,7 +387,8 @@ const DiffShader = {
 		void main() {
 	        vec3 color1 = texture2D(texture1, vUv).rgb;
             vec3 color2 = texture2D(texture2, vUv).rgb;
-			gl_FragColor = vec4(abs(color1 - color2), 1.0);
+            float distL2 = length(color1 - color2) / SQRT_3;
+			gl_FragColor = vec4(distL2, 0.0, 0.0, 1.0);
 		}
     `
 };
