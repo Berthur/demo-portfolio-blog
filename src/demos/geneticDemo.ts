@@ -188,11 +188,11 @@ export class GeneticDemo extends Demo {
         }
     }
 
-    private render(collection: PrimitiveCollection): void {
+    private renderMutation(collection: PrimitiveCollection): void {
 
+        // Update primitives on the attribute buffers:
         const psrAttr = this.points.geometry.attributes.position;
         const colorAttr = this.points.geometry.attributes.color;
-
         for (let i=0; i<this.n; ++i) {
             psrAttr.array[3 * i    ] = collection.posr[3 * i    ];
             psrAttr.array[3 * i + 1] = collection.posr[3 * i + 1];
@@ -204,19 +204,23 @@ export class GeneticDemo extends Demo {
         psrAttr.needsUpdate = true;
         colorAttr.needsUpdate = true;
 
+        // Render mutation:
         this.renderer.setClearColor(0xffffff);
-
-        // TODO: Instead of rendering twice, render to target and copy to screen
-        this.renderer.setRenderTarget(null);
-        this.renderer.render(this.scene, this.camera);
-
         this.renderer.setRenderTarget(this.renderTarget);
         this.renderer.render(this.scene, this.camera);
 
+        // Compute mutation diff:
         this.composer.renderToScreen = false;
         this.composer.render();
 
+        // Compute total error as average of diffs by downscaling:
         this.copyPass.render(this.renderer, this.downsampleRenderTarget, this.diffRenderTarget, 0, false);
+    }
+
+    private renderToScreen(): void {
+        // TODO: Instead of rendering twice, render to target and copy to screen
+        this.renderer.setRenderTarget(null);
+        this.renderer.render(this.scene, this.camera);
     }
 
     private mutate(error: number): void {
@@ -268,11 +272,12 @@ export class GeneticDemo extends Demo {
 
     private iterate(): void {
         this.mutate(this.currError);
-        this.render(this.mutatingCollection);
+        this.renderMutation(this.mutatingCollection);
         const mutatedError = this.getError();
         if (mutatedError <= this.currError) {
             GeneticDemo.copyPrimitiveCollection(this.mutatingCollection, this.currCollection);
             this.currError = mutatedError;
+            this.renderToScreen();
         }
         ++this.iterationCounter;
     }
