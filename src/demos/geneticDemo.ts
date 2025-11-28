@@ -1,4 +1,4 @@
-import { BufferAttribute, BufferGeometry, Camera, Color, DynamicDrawUsage, FloatType, GLSL3, LinearFilter, LinearMipmapLinearFilter, MathUtils, OrthographicCamera, Points, RedFormat, RGBAFormat, Scene, ShaderLib, ShaderMaterial, Texture, TextureLoader, Uniform, Vector2, WebGLRenderer, WebGLRenderTarget } from "three";
+import { BufferAttribute, BufferGeometry, Camera, Color, DynamicDrawUsage, FloatType, GLSL3, LinearMipmapLinearFilter, MathUtils, OrthographicCamera, Points, RedFormat, Scene, ShaderMaterial, Texture, TextureLoader, Vector2, WebGLRenderer, WebGLRenderTarget } from "three";
 import { Demo } from "./demo";
 import { NumberSetting, Settings } from "../settings";
 import { glsl } from "../utils";
@@ -32,7 +32,7 @@ const _primitive = {
 export class GeneticDemo extends Demo {
     private readonly canvas: HTMLCanvasElement;
 
-    private readonly dimensions = new Vector2(500, 500);
+    private readonly dimensions = new Vector2(512, 512);
     private n = 500;
     private stepCount = 1;
     private mutationAggressivity = 1.0;
@@ -50,6 +50,7 @@ export class GeneticDemo extends Demo {
 
     private renderTarget: WebGLRenderTarget;
     private diffRenderTarget: WebGLRenderTarget;
+    private downsampleRenderTarget: WebGLRenderTarget;
     private composer: EffectComposer;
     private copyPass: ShaderPass;
     private diffPass: ShaderPass;
@@ -99,9 +100,17 @@ export class GeneticDemo extends Demo {
         this.diffRenderTarget = new WebGLRenderTarget(this.dimensions.x, this.dimensions.y, {
             format: RedFormat,
             type: FloatType,
+            generateMipmaps: true,
+            minFilter: LinearMipmapLinearFilter,
+        });
+        this.downsampleRenderTarget = new WebGLRenderTarget(1, 1, {
+            format: RedFormat,
+            type: FloatType,
+            generateMipmaps: true,
+            minFilter: LinearMipmapLinearFilter,
         });
         this.composer = new EffectComposer(this.renderer);
-        //this.copyPass = new ShaderPass(CopyShader);
+        this.copyPass = new ShaderPass(CopyShader);
         //this.copyPass.renderToScreen = true;
         this.diffPass = new ShaderPass(DiffShader, 'texture1');
         this.composer.addPass(this.diffPass);
@@ -201,6 +210,8 @@ export class GeneticDemo extends Demo {
 
         this.composer.renderToScreen = false;
         this.composer.render();
+
+        this.copyPass.render(this.renderer, this.downsampleRenderTarget, this.diffRenderTarget, 0, false);
     }
 
     private mutate(error: number): void {
@@ -257,15 +268,17 @@ export class GeneticDemo extends Demo {
         return imageData;
     }
 
+    private errorArray = new Float32Array(1);
     private getError(): number {
-        // TODO: Downsample instead
-        this.renderer.readRenderTargetPixels(this.diffRenderTarget, 0, 0, this.dimensions.x, this.dimensions.y, this.imgdata);
+        this.renderer.readRenderTargetPixels(this.downsampleRenderTarget, 0, 0, 1, 1, this.errorArray);
+        return this.errorArray[0];
 
-        let sum = 0;
-        for (let i=0; i<this.imgdata.length; ++i)
-            sum += this.imgdata[i];
-        sum /= this.imgdata.length;
-        return sum;
+        // this.renderer.readRenderTargetPixels(this.diffRenderTarget, 0, 0, this.dimensions.x, this.dimensions.y, this.imgdata);
+        // let sum = 0;
+        // for (let i=0; i<this.imgdata.length; ++i)
+        //     sum += this.imgdata[i];
+        // sum /= this.imgdata.length;
+        // return sum;
     }
 
     private iterate(): void {
@@ -343,7 +356,7 @@ const vertexShader = glsl`
     flat out vec3 vColor;
 
     void main() {
-        gl_PointSize = position.z * 500.0; // TODO: get viewSize
+        gl_PointSize = position.z * 512.0; // TODO: get viewSize
         gl_Position = vec4(2.0 * position.xy - 1.0, 0.0, 1.0);
         vColor = color;
     }
