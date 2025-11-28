@@ -56,7 +56,6 @@ export class GeneticDemo extends Demo {
     private copyPass: ShaderPass;
     private diffPass: ShaderPass;
     private textureLoader = new TextureLoader();
-    private targetImage: ImageData;
     private targetTexture: Texture;
 
     private statsContainer: HTMLElement;
@@ -113,15 +112,15 @@ export class GeneticDemo extends Demo {
             minFilter: LinearMipmapLinearFilter,
         });
         this.composer = new EffectComposer(this.renderer);
-        this.copyPass = new ShaderPass(CopyShader);
-        //this.copyPass.renderToScreen = true;
         this.diffPass = new ShaderPass(DiffShader, 'texture1');
         this.composer.addPass(this.diffPass);
         const outputPass = new OutputPass();
         this.composer.addPass(outputPass);
-        //this.composer.addPass(this.copyPass);
         this.composer.readBuffer = this.renderTarget;
         this.composer.writeBuffer = this.diffRenderTarget;
+
+        this.copyPass = new ShaderPass(CopyShader);
+        this.copyPass.renderToScreen = false;
 
         this.currError = 1.0;
 
@@ -246,32 +245,12 @@ export class GeneticDemo extends Demo {
         // TODO: Increase n?
     }
 
-    private  async getTargetImage(): Promise<ImageData> {
-        const canvas = document.createElement('canvas');
-        canvas.width = this.dimensions.x;
-        canvas.height = this.dimensions.y;
-        const ctx = canvas.getContext('2d');
-
+    private  async getTargetImage(): Promise<void> {
         const url = '../resources/demo/wanderer.jpeg';
-
-        // @ts-ignore
-        const imageData: Promise<ImageData> = await new Promise((res) => {
-            const image = new Image();
-            image.src = url;
-
-            image.onload = () => {
-                ctx.drawImage(image, 0, 0);
-                res(ctx.getImageData(0, 0, image.width, image.height));
-            };
-        });
-
-        this.container.append(canvas);
-
         const texture = await this.textureLoader.loadAsync(url);
         this.targetTexture = texture;
         this.diffPass.uniforms.texture2.value = texture;
-
-        return imageData;
+        this.container.append(texture.image);
     }
 
     private errorArray = new Float32Array(1);
@@ -303,8 +282,7 @@ export class GeneticDemo extends Demo {
     }
 
     start(): void {
-        this.getTargetImage().then(imageData => {
-            this.targetImage = imageData;
+        this.getTargetImage().then(() => {
             (() => this.frame())();
         });
     }
