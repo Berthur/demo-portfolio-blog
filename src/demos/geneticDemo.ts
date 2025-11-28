@@ -42,6 +42,7 @@ export class GeneticDemo extends Demo {
     private readonly currCollection: PrimitiveCollection;
     private readonly mutatingCollection: PrimitiveCollection;
     private currError = 1;
+    private iterationCounter = 0;
 
     private readonly renderer: WebGLRenderer;
     private readonly scene: Scene;
@@ -57,6 +58,8 @@ export class GeneticDemo extends Demo {
     private textureLoader = new TextureLoader();
     private targetImage: ImageData;
     private targetTexture: Texture;
+
+    private statsContainer: HTMLElement;
 
     private imgdata: Float32Array = new Float32Array(this.dimensions.x * this.dimensions.y);
 
@@ -123,6 +126,9 @@ export class GeneticDemo extends Demo {
         this.currError = 1.0;
 
         this.createSettings();
+
+        this.statsContainer = document.createElement('div');
+        this.container.append(this.statsContainer);
     }
 
     private createPoints(): Points {
@@ -288,8 +294,8 @@ export class GeneticDemo extends Demo {
         if (mutatedError <= this.currError) {
             GeneticDemo.copyPrimitiveCollection(this.mutatingCollection, this.currCollection);
             this.currError = mutatedError;
-            console.log(this.currError);
         }
+        ++this.iterationCounter;
     }
 
     onResize(width: number, height: number): void {
@@ -310,10 +316,17 @@ export class GeneticDemo extends Demo {
     private t0 = 0;
     frame(): void {
         const t1 = performance.now();
-        const delta = Math.min(t1 - this.t0, 200);
+        const delta = t1 - this.t0;
         this.t0 = t1;
 
         for (let i=0; i<this.stepCount; ++i) this.iterate();
+
+        const iterationFreq = this.stepCount / (0.001 * delta);
+        this.statsContainer.innerHTML = `
+            Error: ${ this.currError.toFixed(6) } &nbsp;
+            Iterations/s: ${ ~~iterationFreq } &nbsp;
+            Iterations total: ${ this.iterationCounter < 1000 ? this.iterationCounter : ~~(this.iterationCounter / 1000) + 'k' }
+        `;
         
         requestAnimationFrame(() => { this.frame() });
     }
