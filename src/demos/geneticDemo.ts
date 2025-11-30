@@ -1,6 +1,6 @@
 import { Box3, BufferAttribute, BufferGeometry, Camera, Color, DynamicDrawUsage, FloatType, GLSL3, LinearMipmapLinearFilter, MathUtils, OrthographicCamera, Points, RedFormat, Scene, ShaderMaterial, Sphere, Texture, TextureLoader, Vector2, WebGLRenderer, WebGLRenderTarget } from "three";
 import { Demo } from "./demo";
-import { NumberSetting, Settings } from "../settings";
+import { ButtonSetting, NumberSetting, Settings } from "../settings";
 import { glsl } from "../utils";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import { CopyShader } from "three/examples/jsm/shaders/CopyShader";
@@ -81,15 +81,7 @@ export class GeneticDemo extends Demo {
             color: new Uint8Array(3 * MAX_PRIMITIVE_COUNT),
         } as PrimitiveCollection;
 
-        for (let i=0; i<this.n; ++i) {
-            _primitive.position.x = Math.random();
-            _primitive.position.y = Math.random();
-            _primitive.radius = 0.01;
-            _primitive.color.r = Math.random();
-            _primitive.color.g = Math.random();
-            _primitive.color.b = Math.random();
-            GeneticDemo.setPrimitive(this.currCollection, i, _primitive);
-        }
+        this.initializePrimitives();
 
         this.scene = new Scene();
         this.camera = new OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
@@ -128,6 +120,19 @@ export class GeneticDemo extends Demo {
 
         this.statsContainer = document.createElement('div');
         this.container.append(this.statsContainer);
+    }
+
+    private initializePrimitives(): void {
+        for (let i=0; i<this.n; ++i) {
+            _primitive.position.x = Math.random();
+            _primitive.position.y = Math.random();
+            _primitive.radius = 0.01;
+            _primitive.color.r = Math.random();
+            _primitive.color.g = Math.random();
+            _primitive.color.b = Math.random();
+            GeneticDemo.setPrimitive(this.currCollection, i, _primitive);
+        }
+
     }
 
     private createPoints(): Points {
@@ -295,7 +300,9 @@ export class GeneticDemo extends Demo {
     }
 
     restart(): void {
-        // TODO
+        this.initializePrimitives();
+        this.currError = 1;
+        this.iterationCounter = 0;
     }
 
     private t0 = 0;
@@ -342,6 +349,13 @@ export class GeneticDemo extends Demo {
         settings.add(opacity);
         opacity.subscribe(v => {
             this.primitiveOpacity = v;
+        });
+
+        const restartButton = new ButtonSetting('Restart', 'Restart', false);
+        settings.add(restartButton);
+        restartButton.subscribe(v => {
+            this.restart();
+            settings.setDefaultExpansion();
         });
     }
 }
