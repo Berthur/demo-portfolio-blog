@@ -1,4 +1,4 @@
-import { BufferAttribute, BufferGeometry, Camera, Color, DynamicDrawUsage, FloatType, GLSL3, LinearMipmapLinearFilter, MathUtils, OrthographicCamera, Points, RedFormat, Scene, ShaderMaterial, Texture, TextureLoader, Vector2, WebGLRenderer, WebGLRenderTarget } from "three";
+import { Box3, BufferAttribute, BufferGeometry, Camera, Color, DynamicDrawUsage, FloatType, GLSL3, LinearMipmapLinearFilter, MathUtils, OrthographicCamera, Points, RedFormat, Scene, ShaderMaterial, Sphere, Texture, TextureLoader, Vector2, WebGLRenderer, WebGLRenderTarget } from "three";
 import { Demo } from "./demo";
 import { NumberSetting, Settings } from "../settings";
 import { glsl } from "../utils";
@@ -138,7 +138,9 @@ export class GeneticDemo extends Demo {
         colorAttribute.usage = DynamicDrawUsage;
         g.setAttribute('position', posrAttribute);
         g.setAttribute('color', colorAttribute);
-        // TODO: Is 'position' attribute required?
+
+        g.boundingBox = new Box3();
+        g.boundingSphere = new Sphere();
 
         const m = new ShaderMaterial({
             glslVersion: GLSL3,
