@@ -12,7 +12,6 @@ enum AnchorOptions { None, Sheet, Flag, Sail };
 export class ClothDemo extends Demo {
     private readonly dimensions = new Vector2(1, 1);
     private readonly clothDimensions = new Vector2(20, 20);
-    private mousePos = new Vector2();
     private simulationSteps = 20;
     private damping = 10;
 
@@ -40,10 +39,6 @@ export class ClothDemo extends Demo {
         this.canvas = document.createElement('canvas');
         container.prepend(this.canvas);
 
-        this.canvas.addEventListener('pointermove', e => {
-            this.mousePos.set(e.offsetX, e.offsetY).multiplyScalar(devicePixelRatio);
-        });
-
         this.renderer = new WebGLRenderer({ canvas: this.canvas });
         this.currStateTarget = new WebGLRenderTarget(this.clothDimensions.x, this.clothDimensions.y, { count: 2 });
         this.nextStateTarget = new WebGLRenderTarget(this.clothDimensions.x, this.clothDimensions.y, { count: 2 });
@@ -58,7 +53,6 @@ export class ClothDemo extends Demo {
 
         this.computePass = new ShaderPass(ComputeShader, 'positionTexture');
         this.computePass.material.glslVersion = GLSL3;
-        this.computePass.uniforms.mousePos = new Uniform(this.mousePos);
 
         const renderPass = new RenderPass(this.scene, this.camera);
         renderPass.renderToScreen = true;
@@ -66,7 +60,6 @@ export class ClothDemo extends Demo {
         this.composer.addPass(this.computePass);
         this.composer.addPass(renderPass);
 
-        this.computePass.material.uniforms.viewSize = new Uniform(this.dimensions);
         this.computePass.material.uniforms.clothDimensions = new Uniform(this.clothDimensions);
 
         this.material = new ShaderMaterial({
@@ -76,7 +69,6 @@ export class ClothDemo extends Demo {
             fragmentShader: fragmentShader,
             side: DoubleSide,
         });
-        this.material.uniforms.viewSize = new Uniform(this.dimensions);
         this.material.uniforms.clothDimensions = new Uniform(this.clothDimensions);
         this.material.uniforms.positionTexture = new Uniform(null);
         this.material.uniforms.delta = new Uniform(0);
@@ -259,7 +251,6 @@ export class ClothDemo extends Demo {
 const ComputeShader = {
     name: 'ComputeShader',
     uniforms: {
-        viewSize: { value: new Vector2(1, 1) },
         time: { value: 0 },
         delta: { value: 0 },
         springStrength: { value: 1500 },
@@ -288,13 +279,11 @@ const ComputeShader = {
 
         uniform float time;
         uniform float delta;
-        uniform vec2 viewSize;
         uniform ivec2 clothDimensions;
         uniform float damping;
         uniform vec3 gravity;
         uniform float windStrength;
         uniform bool windFluctuation;
-        uniform vec2 mousePos;
         uniform float springStrength;
         uniform sampler2D positionTexture;
         uniform sampler2D velocityTexture;
@@ -326,14 +315,9 @@ const ComputeShader = {
 
         void main() {
             ivec2 fragCoord = ivec2(gl_FragCoord.xy);
-            float maxViewSize = max(viewSize.x, viewSize.y);
             float springLength = 2.0 / float(clothDimensions.y);
             vec3 g = gravity;
             vec3 windDir = normalize(vec3(0.3, 0.1, 1.0));
-
-            vec2 corrMousePos = 2.0 * mousePos - viewSize;
-            corrMousePos.y = -corrMousePos.y;
-            corrMousePos /= maxViewSize;
 
             vec3 p = texelFetch(positionTexture, fragCoord, 0).rgb;
             vec3 v = texelFetch(velocityTexture, fragCoord, 0).rgb;
@@ -394,7 +378,6 @@ const ComputeShader = {
 const vertexShader = glsl`
     precision highp float;
 
-    uniform vec2 viewSize;
     uniform ivec2 clothDimensions;
     uniform sampler2D positionTexture;
 
