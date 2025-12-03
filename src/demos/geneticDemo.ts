@@ -35,8 +35,8 @@ export class GeneticDemo extends Demo {
     private readonly dimensions = new Vector2(512, 512);
     private n = 500;
     private stepCount = 1;
-    private mutationAggressivity = 1.0;
-    private mutationProbability = 0.1;
+    private mutationAggressivity = 0.5;
+    private mutationProbability = 0.05;
     private primitiveOpacity = 1;
 
     private readonly currCollection: PrimitiveCollection;
@@ -244,9 +244,9 @@ export class GeneticDemo extends Demo {
             _primitive.radius *= scale < 0 ? 1 + 0.5 * scale : 1 + scale;
             _primitive.radius = Math.min(_primitive.radius, 0.05);
 
-            _primitive.color.r = MathUtils.clamp(_primitive.color.r + GeneticDemo.getRandom(-1, 1) * 2.0 * this.mutationAggressivity * error, 0, 1);
-            _primitive.color.g = MathUtils.clamp(_primitive.color.g + GeneticDemo.getRandom(-1, 1) * 2.0 * this.mutationAggressivity * error, 0, 1);
-            _primitive.color.b = MathUtils.clamp(_primitive.color.b + GeneticDemo.getRandom(-1, 1) * 2.0 * this.mutationAggressivity * error, 0, 1);
+            _primitive.color.r = MathUtils.clamp(_primitive.color.r + GeneticDemo.getRandom(-1, 1) * error, 0, 1);
+            _primitive.color.g = MathUtils.clamp(_primitive.color.g + GeneticDemo.getRandom(-1, 1) * error, 0, 1);
+            _primitive.color.b = MathUtils.clamp(_primitive.color.b + GeneticDemo.getRandom(-1, 1) * error, 0, 1);
 
             GeneticDemo.setPrimitive(this.mutatingCollection, i, _primitive);
         }
@@ -339,7 +339,7 @@ export class GeneticDemo extends Demo {
             this.mutationAggressivity = v;
         });
 
-        const mutationProbability = new NumberSetting('Mutation probability', this.mutationProbability, 0, 1, 0.01, v => v.toFixed(2));
+        const mutationProbability = new NumberSetting('Mutation probability', this.mutationProbability, 0, 0.1, 0.001, v => v.toFixed(3));
         settings.add(mutationProbability);
         mutationProbability.subscribe(v => {
             this.mutationProbability = v;
