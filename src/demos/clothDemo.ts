@@ -24,6 +24,7 @@ export class ClothDemo extends Demo {
     private readonly material: ShaderMaterial;
     private readonly computePass: ShaderPass;
     private readonly composer: EffectComposer;
+    private readonly controls: OrbitControls;
 
     private currStateTarget: WebGLRenderTarget;
     private nextStateTarget: WebGLRenderTarget;
@@ -50,8 +51,8 @@ export class ClothDemo extends Demo {
         this.scene = new Scene();
         this.camera = new PerspectiveCamera(75, 1, 0.01, 50);
         this.camera.position.set(0, 0, 3);
-        const controls = new OrbitControls(this.camera, this.canvas);
-        controls.zoomToCursor = true;
+        this.controls = new OrbitControls(this.camera, this.canvas);
+        this.controls.zoomToCursor = true;
 
         this.initializeTextures();
 
@@ -160,6 +161,8 @@ export class ClothDemo extends Demo {
         this.nextStateTarget = new WebGLRenderTarget(this.clothDimensions.x, this.clothDimensions.y, { count: 2 });
 
         this.initializeTextures();
+
+        this.controls.reset();
 
         // TODO: Restart mesh geometry if size changes
     }
