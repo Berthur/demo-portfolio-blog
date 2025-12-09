@@ -1,4 +1,4 @@
-import { BufferGeometry, DataTexture, ExtrudeGeometry, FloatType, GLSL3, InstancedMesh, LinearMipmapLinearFilter, Material, Mesh, MeshBasicMaterial, NearestFilter, PerspectiveCamera, PlaneGeometry, Points, RawShaderMaterial, RepeatWrapping, RGBAFormat, Scene, ShaderMaterial, Shape, Texture, Uniform, Vector2, Vector3, WebGLRenderer, WebGLRenderTarget } from "three";
+import { Box3, BufferGeometry, DataTexture, ExtrudeGeometry, FloatType, GLSL3, InstancedMesh, LinearMipmapLinearFilter, Material, Mesh, MeshBasicMaterial, NearestFilter, PerspectiveCamera, PlaneGeometry, Points, RawShaderMaterial, RepeatWrapping, RGBAFormat, Scene, ShaderMaterial, Shape, Sphere, Texture, Uniform, Vector2, Vector3, WebGLRenderer, WebGLRenderTarget } from "three";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
@@ -68,8 +68,17 @@ export class TrafficDemo extends Demo {
         this.camera = new PerspectiveCamera(70, 1, 0.005, 10);
         this.camera.up = new Vector3(0, 0, 1);
         this.camera.position.set(-0.9, -0.9, 0.5);
+
         const controls = new OrbitControls(this.camera, this.canvas);
         controls.zoomToCursor = true;
+        controls.maxPolarAngle = 0.5 * Math.PI - 0.02;
+        controls.maxDistance = 2;
+
+        // Prevent panning under the ground plane:
+        controls.addEventListener('change', e => {
+            if (this.camera.position.z < 0.01)
+                this.camera.position.z = 0.01;
+        });
 
         this.initialize();
 
