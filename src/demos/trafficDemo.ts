@@ -1,4 +1,4 @@
-import { Box3, BufferGeometry, DataTexture, ExtrudeGeometry, FloatType, GLSL3, InstancedMesh, LinearMipmapLinearFilter, Material, Mesh, MeshBasicMaterial, NearestFilter, PerspectiveCamera, PlaneGeometry, Points, RawShaderMaterial, RepeatWrapping, RGBAFormat, Scene, ShaderMaterial, Shape, Sphere, Texture, Uniform, Vector2, Vector3, WebGLRenderer, WebGLRenderTarget } from "three";
+import { BufferGeometry, DataTexture, ExtrudeGeometry, FloatType, GLSL3, InstancedMesh, LinearMipmapLinearFilter, Material, Mesh, MeshBasicMaterial, NearestFilter, PerspectiveCamera, PlaneGeometry, Points, RawShaderMaterial, RepeatWrapping, RGBAFormat, Scene, ShaderMaterial, Shape, Texture, Uniform, Vector2, Vector3, WebGLRenderer, WebGLRenderTarget } from "three";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
@@ -17,7 +17,7 @@ export class TrafficDemo extends Demo {
 
     private readonly dimensions = new Vector2(1, 1);
 
-    private n = 100;
+    private n = 200;
     private blockN = 5;
     private gridSize = this.blockN * BLOCK_GRID_SIZE;
 
@@ -67,12 +67,14 @@ export class TrafficDemo extends Demo {
 
         this.camera = new PerspectiveCamera(70, 1, 0.005, 10);
         this.camera.up = new Vector3(0, 0, 1);
-        this.camera.position.set(-0.9, -0.9, 0.5);
+        this.camera.position.set(-0.8, -0.8, 0.3);
 
         const controls = new OrbitControls(this.camera, this.canvas);
+        controls.target.set(-0.14, -0.21, -0.22);
         controls.zoomToCursor = true;
         controls.maxPolarAngle = 0.5 * Math.PI - 0.02;
         controls.maxDistance = 2;
+        controls.update();
 
         // Prevent panning under the ground plane:
         controls.addEventListener('change', e => {
