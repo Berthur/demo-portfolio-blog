@@ -39,7 +39,7 @@ export class ClothDemo extends Demo {
         this.canvas = document.createElement('canvas');
         container.prepend(this.canvas);
 
-        this.renderer = new WebGLRenderer({ canvas: this.canvas });
+        this.renderer = new WebGLRenderer({ canvas: this.canvas, antialias: true });
         this.currStateTarget = new WebGLRenderTarget(this.clothDimensions.x, this.clothDimensions.y, { count: 2 });
         this.nextStateTarget = new WebGLRenderTarget(this.clothDimensions.x, this.clothDimensions.y, { count: 2 });
 
