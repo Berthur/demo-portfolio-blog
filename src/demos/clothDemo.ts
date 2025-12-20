@@ -13,7 +13,6 @@ export class ClothDemo extends Demo {
     private readonly dimensions = new Vector2(1, 1);
     private readonly clothDimensions = new Vector2(20, 20);
     private simulationSteps = 20;
-    private damping = 10;
 
     private readonly canvas: HTMLCanvasElement;
     private readonly renderer: WebGLRenderer;
@@ -165,7 +164,6 @@ export class ClothDemo extends Demo {
         const delta = Math.min(t1 - this.t0, 60);
 
         // TODO: Prevent rendering between steps
-        this.computePass.uniforms.damping.value = this.damping;
         for (let i=0; i<this.simulationSteps; ++i) {
             const d = delta / this.simulationSteps;
             const tmp = this.currStateTarget;
@@ -213,16 +211,31 @@ export class ClothDemo extends Demo {
             this.restart();
         });
 
-        const steps = new NumberSetting('Simulation steps', 20, 10, 100, 1);
+        const systemSize = new NumberSetting('System size', this.clothDimensions.x, 5, 50, 1, v => `${ v }x${ v }`);
+        settings.add(systemSize);
+        systemSize.subscribe(v => {
+            this.clothDimensions.set(v, v);
+            this.mesh.geometry.dispose();
+            this.mesh.geometry = new PlaneGeometry(1, 1, this.clothDimensions.x - 1, this.clothDimensions.y - 1);
+            this.restart();
+        });
+
+        const stiffness = new NumberSetting('Stiffness', this.computePass.uniforms.springStrength.value, 500, 10000, 100);
+        settings.add(stiffness);
+        stiffness.subscribe(v => {
+            this.computePass.uniforms.springStrength.value = v;
+        });
+
+        const steps = new NumberSetting('Simulation steps', this.simulationSteps, 10, 100, 1);
         settings.add(steps);
         steps.subscribe(v => {
             this.simulationSteps = v;
         });
 
-        const damping = new NumberSetting('Damping', 10, 0, 100, 1);
+        const damping = new NumberSetting('Damping', this.computePass.uniforms.damping.value, 0, 100, 1);
         settings.add(damping);
         damping.subscribe(v => {
-            this.damping = v;
+            this.computePass.uniforms.damping.value = v;
         });
 
         const colorSetting = new ColorSetting('Color', '#d1b568');
