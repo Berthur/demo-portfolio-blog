@@ -1,8 +1,8 @@
 import { BufferGeometry, DataTexture, ExtrudeGeometry, FloatType, GLSL3, InstancedMesh, LinearMipmapLinearFilter, Material, Mesh, MeshBasicMaterial, NearestFilter, PerspectiveCamera, PlaneGeometry, Points, RawShaderMaterial, RepeatWrapping, RGBAFormat, Scene, ShaderMaterial, Shape, Texture, Uniform, Vector2, Vector3, WebGLRenderer, WebGLRenderTarget } from "three";
-import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
-import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
-import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
+import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { Demo } from "./demo";
 import { BooleanSetting, ButtonSetting, NumberSetting, Settings } from "../settings";
 import { glsl, getMaxTextureSize, PseudoPointsGeometry } from "../utils";

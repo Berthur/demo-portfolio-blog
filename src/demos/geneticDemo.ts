@@ -2,10 +2,10 @@ import { Box3, BufferAttribute, BufferGeometry, Camera, Color, DynamicDrawUsage,
 import { Demo } from "./demo";
 import { ButtonSetting, NumberSetting, Settings } from "../settings";
 import { glsl } from "../utils";
-import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
-import { CopyShader } from "three/examples/jsm/shaders/CopyShader";
-import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
-import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass";
+import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
+import { CopyShader } from "three/addons/shaders/CopyShader.js";
+import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 
 interface Primitive {
     position: Vector2;

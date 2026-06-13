@@ -1,11 +1,11 @@
 import { Color, ColorManagement, DataTexture, DoubleSide, FloatType, GLSL3, Mesh, PerspectiveCamera, PlaneGeometry, RGBAFormat, Scene, ShaderMaterial, Texture, Uniform, Vector2, Vector3, WebGLRenderer, WebGLRenderTarget } from "three";
-import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
-import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
-import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
+import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
+import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { Demo } from "./demo";
 import { BooleanSetting, ButtonSetting, ColorSetting, DropdownSetting, NumberSetting, Settings } from "../settings";
 import { glsl, } from "../utils";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 enum AnchorOptions { None, Sheet, Flag, Sail };
 

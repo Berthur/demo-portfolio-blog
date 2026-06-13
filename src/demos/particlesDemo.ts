@@ -1,7 +1,7 @@
 import { Color, DataTexture, FloatType, GLSL3, OrthographicCamera, Points, RawShaderMaterial, RGBAFormat, Scene, Uniform, Vector2, WebGLRenderer, WebGLRenderTarget } from "three";
-import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
-import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
-import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
+import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
+import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { Demo } from "./demo";
 import { BooleanSetting, ButtonSetting, ColorSchemeSetting, DropdownSetting, NumberSetting, Settings } from "../settings";
 import { glsl, getMaxTextureSize, PseudoPointsGeometry } from "../utils";

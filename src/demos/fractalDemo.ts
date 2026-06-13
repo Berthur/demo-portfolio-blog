@@ -1,9 +1,9 @@
 import { Uniform, Vector2, WebGLRenderer } from "three";
 import { Demo } from "./demo";
 import { glsl } from "../utils";
-import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
-import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
-import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass";
+import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
+import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { ButtonSetting, DropdownSetting, NumberSetting, Settings } from "../settings";
 
 enum FractalType { Mandelbrot, Julia }

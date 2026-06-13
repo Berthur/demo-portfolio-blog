@@ -1,6 +1,6 @@
 import { Color, ColorManagement, DataTexture, RedFormat, UnsignedByteType, Vector2, WebGLRenderer, WebGLRenderTarget } from "three";
-import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
-import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
+import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
+import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { Demo } from "./demo";
 import { ButtonSetting, ColorSetting, DropdownSetting, NumberSetting, PlayerSetting, PlayerState, Settings } from "../settings";
 import { FrameTimer, glsl } from "../utils";
