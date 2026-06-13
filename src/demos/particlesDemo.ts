@@ -3,7 +3,7 @@ import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { Demo } from "./demo";
-import { BooleanSetting, ButtonSetting, ColorSchemeSetting, NumberSetting, Settings } from "../settings";
+import { BooleanSetting, ButtonSetting, ColorSchemeSetting, DropdownSetting, NumberSetting, Settings } from "../settings";
 import { glsl, getMaxTextureSize, PseudoPointsGeometry } from "../utils";
 
 const MAX_TEXTURE_DIM = getMaxTextureSize();
@@ -168,10 +168,24 @@ export class ParticlesDemo extends Demo {
             else return ~~(n / 1000000) + 'm';
         };
 
-        const particleCount = new NumberSetting('Particle count', ~~Math.log10(this.n), 0, 8, 1, countsFormatter);
+        const particleCountOptions = new Map([
+            ['10', 10],
+            ['1000', 1000],
+            ['10K', 10000],
+            ['100K', 100000],
+            ['500K', 500000],
+            ['1 Million', 1000000],
+            ['2 Million', 2000000],
+            ['5 Million', 5000000],
+            ['10 Million', 10000000],
+            ['20 Million', 20000000],
+            ['50 Million (Warning!)', 50000000],
+            ['100 Million (Warning!)', 100000000],
+        ]);
+        const particleCount = new DropdownSetting('Particle count', 5, [...particleCountOptions.keys()]);
         settings.add(particleCount);
         particleCount.subscribe(v => {
-            this.n = ~~Math.pow(10, v);
+            this.n = particleCountOptions.get(v);
             this.restart();
         });
 
